@@ -33,7 +33,7 @@ public class PropertiesConstant {
          * watermark    水印、二维码
          * @description 图片仅支持4MB以下
          */
-        public static final String IMAGE_API = "https://v1.alapi.cn/api/ai/image";
+        public static final String IMAGE_API = "https://v2.alapi.cn/api/ai/image";
 
         /**
          * @api {POST,GET}

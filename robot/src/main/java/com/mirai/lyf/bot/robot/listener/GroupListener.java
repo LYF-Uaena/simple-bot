@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * 群消息监听
+ *
  * @author LYF
  */
 @Slf4j
@@ -36,7 +38,6 @@ public class GroupListener extends BaseListener {
     private final ImageLogService imageLogService;
     private final MemberMessageService memberMessageService;
     private final RosterService rosterService;
-
 
     @Autowired
     public GroupListener(MemberService memberService, OperateLogService operateLogService,

@@ -99,7 +99,7 @@ public class BaseListener {
         long operatorCode = Optional
                 .ofNullable(msg.getOperatorInfo())
                 .map(OperatorInfo::getOperatorCodeNumber)
-                .orElse(TencentCode.QqCode.DEFAULT_MANAGER);
+                .orElse(0L);
         long beOperatorCode = Optional
                 .ofNullable(msg.getBeOperatorInfo())
                 .map(BeOperatorInfo::getBeOperatorCodeNumber)

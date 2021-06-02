@@ -45,6 +45,7 @@ public class ImageService {
     public ImageResult verifyPicture(String picUrl) {
         String category = "";
         Config config = configService.find(ConfigCodeKit.PIC_CATEGORY);
+        Config tokenConfig = configService.find(ConfigCodeKit.ALAPI_KEY);
         if (config != null) {
             category = config.getValue();
         }
@@ -55,7 +56,7 @@ public class ImageService {
         // 参数
         // 字符数据最好encoding以下;这样一来，某些特殊字符才能传过去(如:某人的名字就是“&”,不encoding的话,传不过去)
         // 创建Post请求
-        String params = "token=" + PropertiesConstant.token.ALAPI_TOKEN + "&type=" + category + "&url=" + picUrl;
+        String params = "token=" + tokenConfig.getValue() + "&type=" + category + "&url=" + picUrl;
         /**
          * params = URLEncoder.encode(params, "utf-8");
          */
