@@ -1,0 +1,12 @@
+### GET request with a header
+GET http://{{host}}/welcome
+Accept: application/json
+
+###
+
+GET http://{{host}}/login
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzUxMiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAAAKtWKi5NUrJSyq9MVtJRKi1OLQrKz0kFCgT5-7jGO7r4evrpgJmhwa5BQBWpFQVKVoZmhoYGJkaGJha1AN2xZUlAAAAA.AJ69e8rynAlrS4pDKvbvgzRs3-m7Q5CcTZuDqxheijgYDVVmLzOrq2l_0T_-KXKeJus33jl3mGHrpzS7-DXjUQ
+
+

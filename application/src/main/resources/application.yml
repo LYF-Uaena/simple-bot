@@ -1,0 +1,5 @@
+#配置加载的配置文件名的后缀
+spring:
+  profiles:
+    active: dev
+#    active: prod
