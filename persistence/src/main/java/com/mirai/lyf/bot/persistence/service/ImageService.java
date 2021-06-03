@@ -3,6 +3,7 @@ package com.mirai.lyf.bot.persistence.service;
 
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.PropertiesConstant;
+import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.model.ImageResult;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The type Image service.
@@ -43,56 +46,15 @@ public class ImageService {
      * @return the image result
      */
     public ImageResult verifyPicture(String picUrl) {
-        String category = "";
-        Config config = configService.find(ConfigCodeKit.PIC_CATEGORY);
-        Config tokenConfig = configService.find(ConfigCodeKit.ALAPI_KEY);
-        if (config != null) {
-            category = config.getValue();
-        }
-        ImageResult returnValue = null;
-        // 获得Http客户端(可以理解为:你得先有一个浏览器;注意:实际上HttpClient与浏览器是不一样的)
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
-        // 参数
-        // 字符数据最好encoding以下;这样一来，某些特殊字符才能传过去(如:某人的名字就是“&”,不encoding的话,传不过去)
-        // 创建Post请求
-        String params = "token=" + tokenConfig.getValue() + "&type=" + category + "&url=" + picUrl;
-        /**
-         * params = URLEncoder.encode(params, "utf-8");
-         */
+        // 查询token
+        Config token = configService.find(ConfigCodeKit.ALAPI_KEY);
+        Map<String, String> params = new HashMap<>();
+        params.put("token", token.getValue());
+        params.put("url", picUrl);
 
-        HttpPost httpPost = new HttpPost(PropertiesConstant.Api.IMAGE_API + "?" + params);
-        // 设置ContentType(注:如果只是传普通参数的话,ContentType不一定非要用application/json)
-        httpPost.setHeader("Content-Type", "application/json;charset=utf8");
-
-        // 响应模型
-        CloseableHttpResponse response = null;
-        try {
-            // 由客户端执行(发送)Post请求
-            response = httpClient.execute(httpPost);
-            // 从响应模型中获取响应实体
-            HttpEntity responseEntity = response.getEntity();
-
-            log.info("响应状态为:" + response.getStatusLine());
-            if (responseEntity != null) {
-                String rst = EntityUtils.toString(responseEntity);
-                returnValue = JsonUtils.toBean(rst, ImageResult.class);
-            }
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // 释放资源
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return returnValue;
+        String rst = HttpUtils.post(PropertiesConstant.Api.IMAGE_API, params);
+        System.out.println(rst);
+        return JsonUtils.toBean(rst, ImageResult.class);
     }
 }

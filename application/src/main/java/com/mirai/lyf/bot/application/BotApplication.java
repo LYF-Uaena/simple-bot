@@ -4,10 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * The type Bot application.
+ * 启动类
  *
- * @author LYF on 2021-25-02
- * @description
+ * @author LYF on 2021-02-25
  */
 @SpringBootApplication
 public class BotApplication {

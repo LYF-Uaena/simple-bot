@@ -17,5 +17,5 @@ public interface ImageLogRepository extends JpaRepository<ImageLog, Long> {
      * @param imageId the image id
      * @return the image log
      */
-    ImageLog findByImageId(String imageId);
+    ImageLog findByImageIdAndMemberId(String imageId, Long memberId);
 }
