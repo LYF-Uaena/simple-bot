@@ -21,7 +21,7 @@ public class ImageLogDto {
     private String url;
     private String conclusion;
     private int conclusionType;
-    private Timestamp apiTime;
+    private Long apiTime;
     private Long logId;
     private List<ImageLogDetail> details;
 }

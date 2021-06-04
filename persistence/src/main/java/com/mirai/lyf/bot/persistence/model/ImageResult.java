@@ -23,7 +23,7 @@ public class ImageResult {
     @JsonProperty("data")
     private DataDTO data;
     @JsonProperty("time")
-    private Timestamp time;
+    private Long time;
     @JsonProperty("log_id")
     private Long logId;
 

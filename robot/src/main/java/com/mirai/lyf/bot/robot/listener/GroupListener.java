@@ -59,9 +59,9 @@ public class GroupListener extends BaseListener {
      */
     @Transactional(rollbackFor = Exception.class)
     @OnGroupMemberReduce
-//    @Filters(customFilter = {CustomerFilter.TEST_ROBOT, CustomerFilter.TEST_GROUP})
-    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT,
-            CustomerFilter.FORMAL_GROUP})
+    @Filters(customFilter = {CustomerFilter.TEST_ROBOT, CustomerFilter.TEST_GROUP})
+//    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT,
+//            CustomerFilter.FORMAL_GROUP})
     public void groupMemberReduceListener(GroupMemberReduce reduceMsg, MsgSender sender) {
         log.info("群成员减一");
         // 保存群成员变更记录
@@ -71,18 +71,19 @@ public class GroupListener extends BaseListener {
         // 更新群员信息
         Member member = memberService.findByGroupCodeAndQqCode(reduceMsg.getGroupInfo().getGroupCodeNumber(),
                 reduceMsg.getBeOperatorInfo().getBeOperatorCodeNumber());
-
+        if (member != null) {
+            member.setStatus(reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK ? Member.Status.KICK :
+                    Member.Status.LEAVE);
+            memberService.save(member);
+        }
         // 若成员是被踢出，加黑名单
         if (reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK) {
-            member.setStatus(Member.Status.KICK);
             Roster roster = new Roster();
-            roster.setMemberCode(member.getId());
+            roster.setMemberCode(reduceMsg.getAccountInfo().getAccountCodeNumber());
             roster.setType(Roster.Type.BLACK_ROSTER);
             rosterService.save(roster);
-        } else {
-            member.setStatus(Member.Status.LEAVE);
         }
-        memberService.save(member);
+
     }
 
     /**

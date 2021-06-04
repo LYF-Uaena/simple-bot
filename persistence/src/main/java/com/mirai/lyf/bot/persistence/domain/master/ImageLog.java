@@ -46,8 +46,8 @@ public class ImageLog extends MasterEntity {
     @Column(columnDefinition = ("tinyint DEFAULT 0 comment '图片结果确认程度：0：未知 1：合规 2：不合规 3：疑似'"))
     private int conclusionType;
 
-    @Column(nullable = false, columnDefinition = ("timestamp DEFAULT CURRENT_TIMESTAMP comment '接口请求时间'"))
-    private Timestamp apiTime;
+    @Column(columnDefinition = ("bigint(20) DEFAULT NULL comment '接口请求时间'"))
+    private Long apiTime;
 
     @Column(columnDefinition = ("bigint(20) DEFAULT NULL COMMENT 'logId'"))
     private Long logId;
