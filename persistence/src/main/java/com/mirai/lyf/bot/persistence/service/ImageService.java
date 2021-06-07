@@ -62,6 +62,10 @@ public class ImageService {
         params.put("token", token.getValue());
         params.put("url", url);
 
+
+
+
+
         String rst = HttpUtils.post(PropertiesConstant.Api.IMAGE_API, params);
 
         ImageResult imageResult = JsonUtils.toBean(rst, ImageResult.class);

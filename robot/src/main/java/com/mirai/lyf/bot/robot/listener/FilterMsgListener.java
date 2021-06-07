@@ -18,6 +18,7 @@ import com.mirai.lyf.bot.persistence.service.master.RosterService;
 import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
+import love.forte.common.utils.Carrier;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroup;
 import love.forte.simbot.api.message.MessageContent;
@@ -82,6 +83,7 @@ public class FilterMsgListener extends BaseListener {
         MessageContent images = groupMsg.getMsgContent();
         List<Neko> nekoList = images.getCats("image");
         nekoList.forEach(neko -> {
+            log.info("检测了一张来自{}的图片", groupMsg.getAccountInfo().getAccountCode());
             // 从数据库查询对应图片检测结果
             ImageLog imageLog = imageLogService.findByImageIdAndMemberId(neko.get("id"), member.getId());
 
@@ -92,6 +94,8 @@ public class FilterMsgListener extends BaseListener {
             if (imageLog.getCode() != HttpCode.SUCCESS) {
                 // 调用pic api检测图片
                 imageLogDto = imageService.verifyPicture(neko, member, imageLog);
+            } else {
+                BeanUtils.copyProperties(imageLogDto, imageLog);
             }
 
             // 判断白名单成员
@@ -103,42 +107,48 @@ public class FilterMsgListener extends BaseListener {
             if (imageLogDto.getCode() != HttpCode.SUCCESS) {
                 return;
             }
-
             // 构建需要发送的信息
             MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-
-            try {
-                // 图片审核结果处理
-                if (ImageLog.ConclusionType.NON_COMPLIANCE == imageLogDto.getConclusionType()) {
-
-                    MessageContent messageContent = builder
+            Carrier<Boolean> carrier = new Carrier<>(true);
+            // 图片审核结果处理
+            // 违规处理
+            if (ImageLog.ConclusionType.NON_COMPLIANCE == imageLogDto.getConclusionType()) {
+                // 撤回消息，成功后发送禁言通知
+                carrier = sender.SETTER.setMsgRecall(groupMsg.getFlag());
+                if (carrier.get()) {
+                    builder.clear()
                             .at(groupMsg.getAccountInfo().getAccountCode())
-                            .text("消息违规了呢！先给你禁言一天的处罚吧，以后不要发了哦！发多了会被踢的呢！")
-                            .build();
-                    // 撤回消息
-                    sender.SETTER.setMsgRecall(groupMsg.getFlag());
+                            .text("消息违规了呢！先给你禁言一天的处罚吧，以后不要发了哦！发多了会被踢的呢！");
                     // 发送消息
-                    sender.SENDER.sendGroupMsg(groupMsg, messageContent);
+                    sender.SENDER.sendGroupMsg(groupMsg, builder.build());
                     // 禁言消息发送人
-                    sender.SETTER.setGroupBan(groupMsg.getGroupInfo(), groupMsg.getAccountInfo(), 1, TimeUnit.DAYS);
-
-                } else if (ImageLog.ConclusionType.SUSPECT == imageLogDto.getConclusionType()) {
-                    MessageContent content = builder
-                            .at(groupMsg.getAccountInfo().getAccountCode())
-                            .text("消息似乎有点不对劲，先帮你撤回啦！！")
-                            .build();
-                    // 撤回消息
-                    sender.SETTER.setMsgRecall(groupMsg.getFlag());
-                    // 发送权限不足的消息
-                    sender.SENDER.sendGroupMsg(groupMsg, content);
+                    sender.SETTER.setGroupBan(groupMsg.getGroupInfo(),
+                            groupMsg.getAccountInfo(), 1, TimeUnit.DAYS);
                 }
-            } catch (Exception e) {
-                MessageContent adminContent = builder
+
+            }
+
+            // 疑似处理
+            if (ImageLog.ConclusionType.SUSPECT == imageLogDto.getConclusionType()) {
+                // 撤回消息
+                carrier = sender.SETTER.setMsgRecall(groupMsg.getFlag());
+                if (carrier.get()) {
+                    builder.clear()
+                            .at(groupMsg.getAccountInfo().getAccountCode())
+                            .text("消息似乎有点不对劲，先帮你撤回啦！！");
+                    // 发送撤回的消息
+                    sender.SENDER.sendGroupMsg(groupMsg, builder.build());
+                }
+            }
+
+            log.error(carrier.get().toString());
+            // 若权限不足，发送此消息
+            if (!carrier.get()) {
+                builder.clear()
                         .at(groupMsg.getAccountInfo().getAccountCode())
-                        .text("以你的权限来看，我似乎做不了什么！建议寻求群主帮助降低权限呢！")
-                        .build();
+                        .text("以你的权限来看，我似乎做不了什么！建议寻求群主帮助降低权限呢！");
                 // 发送权限不足的消息
-                sender.SENDER.sendGroupMsg(groupMsg, adminContent);
+                sender.SENDER.sendGroupMsg(groupMsg, builder.build());
             }
         });
     }
