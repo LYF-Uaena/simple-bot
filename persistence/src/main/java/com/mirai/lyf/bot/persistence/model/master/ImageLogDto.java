@@ -1,6 +1,11 @@
 package com.mirai.lyf.bot.persistence.model.master;
 
+import com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail;
 import lombok.Data;
+
+import javax.persistence.Column;
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * The type Image log dto.
@@ -9,21 +14,14 @@ import lombok.Data;
  */
 @Data
 public class ImageLogDto {
-    private Long groupCode;
-    private Long qqCode;
-    private String imageId;
-    private String url;
-    private String result;
     private int code;
     private String msg;
-    private String pornConclusion;
-    private String pornConfidence;
-    private String politicianConclusion;
-    private String politicianConfidence;
-    private int politicianNum;
-    private double disgustConfidence;
-    private String qrCodeConclusion;
-    private double qrCodeConfidence;
-    private String terrorConclusion;
-    private double terrorConfidence;
+    private Long memberId;
+    private String imageId;
+    private String url;
+    private String conclusion;
+    private int conclusionType;
+    private Long apiTime;
+    private Long logId;
+    private List<ImageLogDetail> details;
 }

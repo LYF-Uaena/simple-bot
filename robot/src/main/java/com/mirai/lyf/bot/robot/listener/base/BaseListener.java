@@ -28,6 +28,14 @@ public class BaseListener {
         this.builderFactory = builderFactory;
     }
 
+
+    /**
+     * 发送群消息
+     *
+     * @param groupInfo the group info
+     * @param content   the content
+     * @param sender    the sender
+     */
     public void sendGroupMessage(GroupInfo groupInfo, MessageContent content, MsgSender sender) {
         sender.SENDER.sendGroupMsg(groupInfo, content);
     }
@@ -42,6 +50,7 @@ public class BaseListener {
      * @param memberService the member service
      * @return the member
      */
+    @NotNull
     public synchronized Member checkMember(MsgSender sender, AccountInfo accountInfo, GroupInfo groupInfo,
                                            MemberService memberService) {
         // 从数据库查询

@@ -1,6 +1,7 @@
 package com.mirai.lyf.bot.persistence.repository.master;
 
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
+import org.springframework.boot.convert.Delimiter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,5 +18,5 @@ public interface ImageLogRepository extends JpaRepository<ImageLog, Long> {
      * @param imageId the image id
      * @return the image log
      */
-    ImageLog findByImageId(String imageId);
+    ImageLog findByImageIdAndMemberId(String imageId, Long memberId);
 }

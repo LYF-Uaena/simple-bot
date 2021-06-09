@@ -1,24 +1,29 @@
 package com.mirai.lyf.bot.persistence.service;
 
 
+import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.PropertiesConstant;
+import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
+import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
+import com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail;
+import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.model.ImageResult;
+import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
+import com.mirai.lyf.bot.persistence.service.master.ImageLogDetailService;
+import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The type Image service.
@@ -30,69 +35,65 @@ import java.io.IOException;
 public class ImageService {
 
     private final ConfigService configService;
+    private final ImageLogService imageLogService;
+    private final ImageLogDetailService imageLogDetailService;
 
     @Autowired
-    public ImageService(ConfigService configService) {
+    public ImageService(ConfigService configService, ImageLogService imageLogService,
+                        ImageLogDetailService imageLogDetailService) {
         this.configService = configService;
+        this.imageLogService = imageLogService;
+        this.imageLogDetailService = imageLogDetailService;
     }
 
     /**
      * 图片合规审查.
      *
-     * @param picUrl the pic url
+     * @param neko     the neko
+     * @param member   the member
+     * @param imageLog the image log
      * @return the image result
      */
-    public ImageResult verifyPicture(String picUrl) {
-        String category = "";
-        Config config = configService.find(ConfigCodeKit.PIC_CATEGORY);
-        Config tokenConfig = configService.find(ConfigCodeKit.ALAPI_KEY);
-        if (config != null) {
-            category = config.getValue();
+    public ImageLogDto verifyPicture(Neko neko, Member member, ImageLog imageLog) {
+        String url = neko.get("url");
+        // 查询token
+        Config token = configService.find(ConfigCodeKit.ALAPI_KEY);
+        Map<String, String> params = new HashMap<>();
+        params.put("token", token.getValue());
+        params.put("url", url);
+
+
+
+
+
+        String rst = HttpUtils.post(PropertiesConstant.Api.IMAGE_API, params);
+
+        ImageResult imageResult = JsonUtils.toBean(rst, ImageResult.class);
+        log.info(imageResult.toString());
+
+        ImageLogDto imageLogDto = new ImageLogDto();
+        imageLogService.buildImageLog(imageResult, neko, imageLogDto, member);
+
+        BeanUtils.copyProperties(imageLogDto, imageLog);
+        imageLogService.save(imageLog);
+
+        List<ImageLogDetail> details = new ArrayList<>();
+        long imageLogId = imageLog.getId();
+
+        if (imageResult.getData() != null) {
+            imageResult.getData().getReasonList().forEach(item -> {
+                ImageLogDetail detail = new ImageLogDetail();
+                detail.setImageLogId(imageLogId);
+                detail.setMsg(item.getMsg());
+                detail.setProbability(item.getProbability());
+                detail.setLevel(item.getLevel());
+                details.add(detail);
+            });
+            imageLogDetailService.saveAll(details);
+//            imageLogDto.setDetails(details);
         }
-        ImageResult returnValue = null;
-        // 获得Http客户端(可以理解为:你得先有一个浏览器;注意:实际上HttpClient与浏览器是不一样的)
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
-        // 参数
-        // 字符数据最好encoding以下;这样一来，某些特殊字符才能传过去(如:某人的名字就是“&”,不encoding的话,传不过去)
-        // 创建Post请求
-        String params = "token=" + tokenConfig.getValue() + "&type=" + category + "&url=" + picUrl;
-        /**
-         * params = URLEncoder.encode(params, "utf-8");
-         */
-
-        HttpPost httpPost = new HttpPost(PropertiesConstant.Api.IMAGE_API + "?" + params);
-        // 设置ContentType(注:如果只是传普通参数的话,ContentType不一定非要用application/json)
-        httpPost.setHeader("Content-Type", "application/json;charset=utf8");
-
-        // 响应模型
-        CloseableHttpResponse response = null;
-        try {
-            // 由客户端执行(发送)Post请求
-            response = httpClient.execute(httpPost);
-            // 从响应模型中获取响应实体
-            HttpEntity responseEntity = response.getEntity();
-
-            log.info("响应状态为:" + response.getStatusLine());
-            if (responseEntity != null) {
-                String rst = EntityUtils.toString(responseEntity);
-                returnValue = JsonUtils.toBean(rst, ImageResult.class);
-            }
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // 释放资源
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return returnValue;
+        return imageLogDto;
     }
+
 }
