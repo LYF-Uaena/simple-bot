@@ -51,9 +51,10 @@ public class GroupMemberIncreaseListener extends BaseListener {
 
         // 发送欢迎新成员的信息
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-        MessageContent messageContent = builder.at(increaseMsg.getAccountInfo().getAccountCode()).text("天青色等烟雨 " +
-                "而我在等你。欢迎加入群聊！").build();
-        sender.SENDER.sendGroupMsg(groupCode, messageContent);
+        builder
+                .at(increaseMsg.getAccountInfo().getAccountCode())
+                .text("天青色等烟雨而我在等你。欢迎加入群聊！");
+        sender.SENDER.sendGroupMsg(groupCode, builder.build());
 
         // 保存操作记录
         OperateLog operateLog = buildOperateLog(String.valueOf(increaseMsg.getIncreaseType()), increaseMsg);

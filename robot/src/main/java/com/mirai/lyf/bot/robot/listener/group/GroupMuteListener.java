@@ -7,6 +7,7 @@ import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroupMute;
+import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
 import love.forte.simbot.api.message.events.GroupMute;
 import love.forte.simbot.api.sender.MsgSender;
@@ -28,20 +29,16 @@ public class GroupMuteListener extends BaseListener {
         this.operateLogService = operateLogService;
     }
 
-    /**
-     * 群成员禁言
-     *
-     * @param muteMsg the mute msg
-     * @param sender  the sender
-     */
     @OnGroupMute
     @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT,
             CustomerFilter.FORMAL_GROUP})
     public void groupMuteListener(GroupMute muteMsg, MsgSender sender) {
-        log.info("accountCode = " + muteMsg.getAccountInfo().getAccountCode());
+        log.info("mute accountCode = {}", muteMsg.getAccountInfo().getAccountCode());
         // 保存操作记录
         OperateLog operateLog = buildOperateLog(String.valueOf(muteMsg.getMuteActionType()), muteMsg);
         operateLogService.save(operateLog);
+        MessageContentBuilder image = builderFactory.getMessageContentBuilder().image("classpath:static/welcome.gif");
+        sendGroupMessage(muteMsg.getGroupInfo(), image.build(), sender);
     }
 
 

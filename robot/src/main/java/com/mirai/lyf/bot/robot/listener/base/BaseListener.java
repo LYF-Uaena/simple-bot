@@ -1,5 +1,6 @@
 package com.mirai.lyf.bot.robot.listener.base;
 
+import catcode.CatCodeUtil;
 import com.mirai.lyf.bot.common.utils.DateUtils;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
@@ -21,7 +22,10 @@ import java.util.Optional;
  * @author LYF
  */
 public class BaseListener {
+
+    public static final CatCodeUtil catCodeUtil = CatCodeUtil.INSTANCE;
     public final MessageContentBuilderFactory builderFactory;
+
 
     @Autowired
     public BaseListener(MessageContentBuilderFactory builderFactory) {
