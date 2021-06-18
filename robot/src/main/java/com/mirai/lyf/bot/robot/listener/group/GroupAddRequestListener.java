@@ -14,6 +14,8 @@ import love.forte.simbot.filter.MostMatchType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * 监听群添加请求事件
  */
@@ -58,8 +60,13 @@ public class GroupAddRequestListener {
             if (!allowRequest) {
                 sender.SETTER.setGroupAddRequest(requestMsg.getFlag(), false, false, "您曾经被踢出群聊，不允许重新加群！");
             } else {
-                sender.SETTER.setGroupAddRequest(requestMsg.getFlag(), PatternUtil.stringPattern(pattern,
-                        requestMsg.getText()), false, "请正确回答问题哦！如果不知道正确答案的话，请百度搜索‘彼岸图网’");
+                String text = Optional.ofNullable(requestMsg.getText()).orElse("");
+                sender.SETTER.setGroupAddRequest(
+                        requestMsg.getFlag(),
+                        PatternUtil.getGroupAddInstance().matcher(text).find(),
+                        false,
+                        "请正确回答问题哦！如果不知道正确答案的话，请百度搜索‘彼岸图网’"
+                );
             }
         } else {
             // 提示通过群号搜索添加
