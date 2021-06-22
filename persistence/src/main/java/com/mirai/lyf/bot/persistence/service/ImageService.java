@@ -10,7 +10,8 @@ import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
-import com.mirai.lyf.bot.persistence.model.ImageResult;
+import com.mirai.lyf.bot.persistence.model.alapi.ImageData;
+import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogDetailService;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
@@ -62,13 +63,10 @@ public class ImageService {
         params.put("token", token.getValue());
         params.put("url", url);
 
-
-
-
-
         String rst = HttpUtils.post(PropertiesConstant.Api.IMAGE_API, params);
 
-        ImageResult imageResult = JsonUtils.toBean(rst, ImageResult.class);
+        @SuppressWarnings("unchecked")
+        Response<ImageData> imageResult = JsonUtils.toBean(rst, Response.class, ImageData.class);
         log.info(imageResult.toString());
 
         ImageLogDto imageLogDto = new ImageLogDto();

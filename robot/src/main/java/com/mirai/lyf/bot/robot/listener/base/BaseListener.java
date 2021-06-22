@@ -7,6 +7,7 @@ import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import love.forte.simbot.api.message.MessageContent;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
+import love.forte.simbot.api.message.assists.Permissions;
 import love.forte.simbot.api.message.containers.*;
 import love.forte.simbot.api.message.results.GroupMemberInfo;
 import love.forte.simbot.api.sender.MsgSender;
@@ -127,5 +128,21 @@ public class BaseListener {
         // 操作原因
         operateLog.setReason(type);
         return operateLog;
+    }
+
+    public String getIdentity(Permissions permission) {
+        String identity = "未知";
+        switch (permission) {
+            case OWNER:
+                identity = "群主";
+                break;
+            case MEMBER:
+                identity = "群员";
+                break;
+            case ADMINISTRATOR:
+                identity = "管理员";
+                break;
+        }
+        return identity;
     }
 }

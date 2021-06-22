@@ -56,14 +56,16 @@ public class JsonUtils {
      * 根据Json字符串，转换为JavaBean对象
      *
      * @param jsonString Json字符串
-     * @param clazz      指定Type.class
+     * @param clazz1     指定Type.class
+     * @param clazz2     指定Type.class
      * @param <T>        指定Type
      * @return JavaBean对象
      */
-    public static <T> T toBean(final String jsonString, Class<T> clazz) {
+    public static <T, K> T toBean(final String jsonString, Class<T> clazz1, Class<K> clazz2) {
         T t = null;
         try {
-            t = OBJECT_MAPPER.readValue(jsonString, clazz);
+            JavaType javaType = OBJECT_MAPPER.getTypeFactory().constructParametricType(clazz1, clazz2);
+            t = OBJECT_MAPPER.readValue(jsonString, javaType);
         } catch (IOException ex) {
             log.warn("Json to Bean Error", ex);
         }

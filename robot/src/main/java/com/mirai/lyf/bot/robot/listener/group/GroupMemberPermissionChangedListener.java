@@ -1,13 +1,17 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
+import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.OnGroupMemberPermissionChanged;
 import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
+import love.forte.simbot.api.message.assists.Permissions;
 import love.forte.simbot.api.message.events.GroupMemberPermissionChanged;
 import love.forte.simbot.api.sender.MsgSender;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * 监听群成员权限变动事件
@@ -22,9 +26,17 @@ public class GroupMemberPermissionChangedListener extends BaseListener {
 
     @OnGroupMemberPermissionChanged
     public void permissionChanged(GroupMemberPermissionChanged msg, MsgSender sender) {
+
+        String s = "【" +
+                msg.getBeOperatorInfo().getAccountNickname() +
+                "】的身份由【" +
+                getIdentity(Optional.ofNullable(msg.getBeforeChange()).orElse(Permissions.MEMBER)) +
+                "】变更至【" +
+                getIdentity(Optional.ofNullable(msg.getAfterChange()).orElse(Permissions.MEMBER)) +
+                "】";
         MessageContentBuilder contentBuilder = builderFactory.getMessageContentBuilder()
-//                .at(msg.getBeOperatorInfo().getAccountCode())
-                .text("群员【" + msg.getBeOperatorInfo().getAccountNickname() + "】的权限由【" + msg.getBeforeChange() + "】变更至【" + msg.getAfterChange() + "】");
+                .at(msg.getBeOperatorInfo().getAccountCode())
+                .text(s);
 
         sender.SENDER.sendGroupMsg(msg, contentBuilder.build());
     }
