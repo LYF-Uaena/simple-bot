@@ -16,15 +16,8 @@ public class PropertiesConstant {
 
         public static final String IMAGE_API = "https://v2.alapi.cn/api/censor/image";
 
-        /**
-         * @api {POST,GET}
-         * @param url: String
-         * @description 百度云盘的分享链接支持以下格式:
-         * https://pan.baidu.com/share/init?surl=*****
-         * https://pan.baidu.com/wap/init?surl=*****
-         * https://pan.baidu.com/s/****
-         */
-        public static final String BAIDU_NET_DISK_API = "https://v1.alapi.cn/api/bdpwd";
+        public static final String LICK_DOG_API = "https://v2.alapi.cn/api/dog";
+
     }
 
 }

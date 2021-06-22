@@ -1,4 +1,4 @@
-package com.mirai.lyf.bot.persistence.service;
+package com.mirai.lyf.bot.persistence.service.alapi;
 
 
 import catcode.Neko;

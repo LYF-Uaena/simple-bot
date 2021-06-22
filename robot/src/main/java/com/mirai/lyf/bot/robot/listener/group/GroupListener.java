@@ -7,8 +7,11 @@ import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.MemberMessage;
 import com.mirai.lyf.bot.persistence.domain.master.Roster;
+import com.mirai.lyf.bot.persistence.model.alapi.LickDogData;
+import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
-import com.mirai.lyf.bot.persistence.service.ImageService;
+import com.mirai.lyf.bot.persistence.service.alapi.ImageService;
+import com.mirai.lyf.bot.persistence.service.alapi.LickDogService;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
@@ -16,6 +19,7 @@ import com.mirai.lyf.bot.persistence.service.master.RosterService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
+import love.forte.simbot.annotation.Filter;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroup;
 import love.forte.simbot.api.message.MessageContent;
@@ -27,12 +31,12 @@ import love.forte.simbot.api.message.results.GroupMemberInfo;
 import love.forte.simbot.api.message.results.GroupMemberList;
 import love.forte.simbot.api.sender.MsgSender;
 import love.forte.simbot.bot.Bot;
+import love.forte.simbot.filter.MatchType;
 import love.forte.simbot.filter.MostMatchType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
@@ -52,12 +56,13 @@ public class GroupListener extends BaseListener {
     private final ImageLogService imageLogService;
     private final RosterService rosterService;
     private final RedisTemplate<String, Integer> redisTemplate;
-
+    private final LickDogService lickDogService;
 
     @Autowired
     public GroupListener(MessageContentBuilderFactory builderFactory, MemberMessageService memberMessageService,
                          MemberService memberService, ImageService imageService, ImageLogService imageLogService,
-                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate) {
+                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate,
+                         LickDogService lickDogService) {
         super(builderFactory);
         this.memberMessageService = memberMessageService;
         this.memberService = memberService;
@@ -65,6 +70,7 @@ public class GroupListener extends BaseListener {
         this.imageLogService = imageLogService;
         this.rosterService = rosterService;
         this.redisTemplate = redisTemplate;
+        this.lickDogService = lickDogService;
     }
 
     /**
@@ -255,6 +261,27 @@ public class GroupListener extends BaseListener {
         MessageContent msg = builder.text("更新成功，共更新" + count + "人！").build();
 
         sender.SENDER.sendGroupMsg(groupMsg, msg);
+    }
+
+
+    @OnGroup
+    @Filters(
+            customMostMatchType = MostMatchType.ALL,
+            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
+            mostMatchType = MostMatchType.ANY,
+            value = {
+                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
+            }
+    )
+    public void lickDogListener(GroupMsg msg, MsgSender sender) {
+        Response<LickDogData> lickDogResponse = lickDogService.lickDog();
+        if (lickDogResponse.getCode() == HttpCode.SUCCESS) {
+            MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
+            builder.at(msg.getAccountInfo().getAccountCode())
+                    .text(lickDogResponse.getData().getContent());
+
+            sender.SENDER.sendGroupMsg(msg, builder.build());
+        }
     }
 
 }
