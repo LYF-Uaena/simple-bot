@@ -25,4 +25,7 @@ public class MemberMessage extends MasterEntity {
 
     @Column(columnDefinition = ("varchar(8000) DEFAULT NULL COMMENT '消息'"))
     private String msg;
+
+    @Column(columnDefinition = ("varchar(100) DEFAULT NULL COMMENT '消息id'"))
+    private String msgId;
 }

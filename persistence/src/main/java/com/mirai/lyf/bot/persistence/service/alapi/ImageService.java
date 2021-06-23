@@ -2,8 +2,8 @@ package com.mirai.lyf.bot.persistence.service.alapi;
 
 
 import catcode.Neko;
+import com.mirai.lyf.bot.common.kit.AlApi;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
-import com.mirai.lyf.bot.common.kit.PropertiesConstant;
 import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
@@ -31,8 +31,8 @@ import java.util.Map;
  *
  * @author LYF on 2021-27-02
  */
-@Service
 @Slf4j
+@Service
 public class ImageService {
 
     private final ConfigService configService;
@@ -63,7 +63,7 @@ public class ImageService {
         params.put("token", token.getValue());
         params.put("url", url);
 
-        String rst = HttpUtils.post(PropertiesConstant.Api.IMAGE_API, params);
+        String rst = HttpUtils.post(AlApi.IMAGE_API, params);
 
         @SuppressWarnings("unchecked")
         Response<ImageData> imageResult = JsonUtils.toBean(rst, Response.class, ImageData.class);
@@ -78,6 +78,7 @@ public class ImageService {
         List<ImageLogDetail> details = new ArrayList<>();
         long imageLogId = imageLog.getId();
 
+        // 保存图片违规详情
         if (imageResult.getData() != null) {
             imageResult.getData().getReasonList().forEach(item -> {
                 ImageLogDetail detail = new ImageLogDetail();
@@ -88,7 +89,6 @@ public class ImageService {
                 details.add(detail);
             });
             imageLogDetailService.saveAll(details);
-//            imageLogDto.setDetails(details);
         }
 
         return imageLogDto;

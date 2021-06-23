@@ -92,7 +92,10 @@ public class GroupListener extends BaseListener {
         MemberMessage memberMessage = new MemberMessage();
         memberMessage.setMsg(groupMsg.getMsg());
         memberMessage.setMemberId(member.getId());
+        memberMessage.setMsgId(groupMsg.getId());
         memberMessageService.save(memberMessage);
+
+        // 检测图片
         MessageContent images = groupMsg.getMsgContent();
         List<Neko> nekoList = images.getCats("image");
         nekoList.forEach(neko -> {
