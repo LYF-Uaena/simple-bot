@@ -1,6 +1,5 @@
 package com.mirai.lyf.bot.common.utils;
 
-import com.mirai.lyf.bot.common.kit.PropertiesConstant;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
