@@ -47,3 +47,5 @@ build/
 .gradle
 gradle
 cache
+
+**/simbot-bots/**
