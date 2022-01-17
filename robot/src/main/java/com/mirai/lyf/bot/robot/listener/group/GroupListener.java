@@ -16,6 +16,7 @@ import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
+import com.mirai.lyf.bot.robot.annotation.ApiTimes;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
@@ -39,8 +40,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -267,16 +271,17 @@ public class GroupListener extends BaseListener {
     }
 
 
-    @OnGroup
-    @Filters(
-            customMostMatchType = MostMatchType.ALL,
-            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-            mostMatchType = MostMatchType.ANY,
-            value = {
-                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
-            }
-    )
-    public void lickDogListener(GroupMsg msg, MsgSender sender) {
+//    @OnGroup
+//    @Filters(
+//            customMostMatchType = MostMatchType.ALL,
+//            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
+//            mostMatchType = MostMatchType.ANY,
+//            value = {
+//                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
+//            }
+//    )
+//    @ApiTimes
+    public Boolean lickDogListener(GroupMsg msg, MsgSender sender) {
         Response<LickDogData> lickDogResponse = lickDogService.lickDog();
         if (lickDogResponse.getCode() == HttpCode.SUCCESS) {
             MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
@@ -284,6 +289,48 @@ public class GroupListener extends BaseListener {
                     .text(lickDogResponse.getData().getContent());
 
             sender.SENDER.sendGroupMsg(msg, builder.build());
+        }
+        if (lickDogResponse.getCode() == HttpCode.TIMES_UP) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    /**
+     * 获取最后发言时间
+     *
+     * @param groupMsg the group msg
+     * @param sender   the sender
+     */
+    @OnGroup
+    @Filter(value = "发言时间", matchType = MatchType.CONTAINS, bots = {"2635200012"}, atBot = true, at = {"2635200012"})
+    public void Listener(GroupMsg groupMsg, MsgSender sender) {
+        if (groupMsg.getAccountInfo().getAccountCodeNumber() == 571675921L) {
+
+            // 获取群成员列表
+            GroupMemberList memberList = sender.GETTER.getGroupMemberList(groupMsg.getGroupInfo().getGroupCode());
+
+            MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
+            int count = 0;
+            for (GroupMemberInfo info : memberList) {
+                Date date = new Date(info.getLastSpeakTime());
+                Calendar instance = Calendar.getInstance();
+                instance.setTime(date);
+
+                instance.set(Calendar.YEAR, 1);
+                Date time = instance.getTime();
+                if (date.before(time)) {
+                    count++;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String sd = sdf.format(date);
+                builder.text(info.getAccountNickname() + "的最后发言时间为：" + sd + "\n");
+
+            }
+            sender.SENDER.sendGroupMsg(groupMsg, builder.build());
+//            sender.SENDER.sendGroupMsg(groupMsg, "当前共有" + count + "人超过一年未发言");
+        } else {
+            sender.SENDER.sendGroupMsg(groupMsg, "您当前没有权限哦！");
         }
     }
 

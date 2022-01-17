@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+//import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,13 +24,12 @@ import java.util.Map;
  * @author LYF on 2020-09-29
  */
 @Slf4j
-@SuppressWarnings("unused")
 public class JsonUtils {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final XmlMapper XML_MAPPER = new XmlMapper();
+//    private static final XmlMapper XML_MAPPER = new XmlMapper();
 
     static {
-        XML_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+//        XML_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
@@ -141,23 +140,23 @@ public class JsonUtils {
         return list;
     }
 
-    /**
-     * 根据xml字符串转换为Bean
-     *
-     * @param xmlString xml字符串
-     * @param clazz     指定Type.class
-     * @param <T>       指定Type
-     * @return bean对象
-     */
-    public static <T> T xmlToBean(final String xmlString, Class<T> clazz) {
-        T t = null;
-        try {
-            t = XML_MAPPER.readValue(xmlString, clazz);
-        } catch (IOException ex) {
-            log.warn("XML string to Bean Error", ex);
-        }
-        return t;
-    }
+//    /**
+//     * 根据xml字符串转换为Bean
+//     *
+//     * @param xmlString xml字符串
+//     * @param clazz     指定Type.class
+//     * @param <T>       指定Type
+//     * @return bean对象
+//     */
+//    public static <T> T xmlToBean(final String xmlString, Class<T> clazz) {
+//        T t = null;
+//        try {
+//            t = XML_MAPPER.readValue(xmlString, clazz);
+//        } catch (IOException ex) {
+//            log.warn("XML string to Bean Error", ex);
+//        }
+//        return t;
+//    }
 
     /**
      * 根据map转换为Bean
@@ -171,21 +170,21 @@ public class JsonUtils {
         return OBJECT_MAPPER.convertValue(map, clazz);
     }
 
-    /**
-     * 把JavaBean转换为XML的字符串
-     *
-     * @param bean Java bean
-     * @return 转换后的XML字符串
-     */
-    public static String toXml(Object bean) {
-        String jsonString = StringUtils.EMPTY;
-        try {
-            jsonString = XML_MAPPER.writeValueAsString(bean);
-        } catch (IOException ex) {
-            log.warn("Bean to Json Error", ex);
-        }
-
-        return jsonString;
-    }
+//    /**
+//     * 把JavaBean转换为XML的字符串
+//     *
+//     * @param bean Java bean
+//     * @return 转换后的XML字符串
+//     */
+//    public static String toXml(Object bean) {
+//        String jsonString = StringUtils.EMPTY;
+//        try {
+//            jsonString = XML_MAPPER.writeValueAsString(bean);
+//        } catch (IOException ex) {
+//            log.warn("Bean to Json Error", ex);
+//        }
+//
+//        return jsonString;
+//    }
 
 }

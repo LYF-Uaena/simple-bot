@@ -43,4 +43,8 @@ public class ConfigCodeKit {
      * 接口TOKEN
      */
     public static final String ALAPI_KEY = "alApiKey";
+    /**
+     * 是否可以请求接口
+     */
+    public static final String CAN_REQUEST_API = "canRequestApi";
 }

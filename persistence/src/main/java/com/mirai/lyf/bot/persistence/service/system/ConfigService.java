@@ -3,6 +3,7 @@ package com.mirai.lyf.bot.persistence.service.system;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.repository.system.ConfigRepository;
 import com.mirai.lyf.bot.persistence.service.CommonService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,7 +26,7 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
     /**
      * Instantiates a new Config service.
      *
-     * @param repo the config repository
+     * @param repo          the config repository
      * @param redisTemplate
      */
     @Autowired
@@ -42,6 +43,7 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
      * Find config.
      *
      * @param code the code
+     *
      * @return the config
      */
     public Config find(String code) {
@@ -54,5 +56,17 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
         redisTemplate.opsForValue().set(prefixKey, config);
         redisTemplate.expire(prefixKey, 3600L, TimeUnit.SECONDS);
         return config;
+    }
+
+    public void setRedis(String key, Serializable value) {
+        key = PREFIX_KEY + key;
+        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.expire(key, 3600L, TimeUnit.SECONDS);
+
+    }
+
+    public Serializable getRedis(String key) {
+        key = PREFIX_KEY + key;
+        return redisTemplate.opsForValue().get(key);
     }
 }

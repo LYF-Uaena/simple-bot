@@ -7,4 +7,5 @@ package com.mirai.lyf.bot.common.kit;
  */
 public final class HttpCode {
     public static final int SUCCESS = 200;
+    public static final int TIMES_UP = 102;
 }

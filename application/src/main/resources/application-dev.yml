@@ -3,12 +3,12 @@ server:
 spring:
   # 使用其他模块的yml
   profiles:
-    include: robot,persistence
+#    include: robot,persistence
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
-    username: localBot
-    password: localPWD
+    url: jdbc:mysql://121.37.185.109:3306/bot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: bot
+    password: JerryLYF0710@!
     #阿里druid连接池驱动配置信息
     type: com.alibaba.druid.pool.DruidDataSource
     #连接池的配置信息
