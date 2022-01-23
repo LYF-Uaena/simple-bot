@@ -37,8 +37,8 @@ public class GroupMuteListener extends BaseListener {
         // 保存操作记录
         OperateLog operateLog = buildOperateLog(String.valueOf(muteMsg.getMuteActionType()), muteMsg);
         operateLogService.save(operateLog);
-        MessageContentBuilder image = builderFactory.getMessageContentBuilder().image("classpath:static/welcome.gif");
-        sendGroupMessage(muteMsg.getGroupInfo(), image.build(), sender);
+//        MessageContentBuilder image = builderFactory.getMessageContentBuilder().image("classpath:static/welcome.gif");
+//        sendGroupMessage(muteMsg.getGroupInfo(), image.build(), sender);
     }
 
 

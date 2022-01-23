@@ -3,13 +3,14 @@ package com.mirai.lyf.bot.persistence.service.system;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.repository.system.ConfigRepository;
 import com.mirai.lyf.bot.persistence.service.CommonService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,16 +36,21 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
         this.redisTemplate = redisTemplate;
     }
 
+    @Transactional
     public Config save(Config config) {
         return repo.save(config);
     }
 
     /**
-     * Find config.
-     *
-     * @param code the code
-     *
-     * @return the config
+     * 获取配置值
+     */
+    public String findValue(String code) {
+        Config config = find(code);
+        return Optional.ofNullable(config).map(Config::getValue).orElse("");
+    }
+
+    /**
+     * 获取配置
      */
     public Config find(String code) {
         String prefixKey = PREFIX_KEY + code;

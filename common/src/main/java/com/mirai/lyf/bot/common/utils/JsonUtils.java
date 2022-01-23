@@ -38,6 +38,7 @@ public class JsonUtils {
      * 把JavaBean对象转换为Json字符串
      *
      * @param bean JavaBean
+     *
      * @return Json字符串
      */
     public static String toJson(Object bean) {
@@ -45,7 +46,7 @@ public class JsonUtils {
         try {
             jsonString = OBJECT_MAPPER.writeValueAsString(bean);
         } catch (IOException ex) {
-            log.warn("Bean to Json Error", ex);
+            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
         }
 
         return jsonString;
@@ -58,6 +59,7 @@ public class JsonUtils {
      * @param clazz1     指定Type.class
      * @param clazz2     指定Type.class
      * @param <T>        指定Type
+     *
      * @return JavaBean对象
      */
     public static <T, K> T toBean(final String jsonString, Class<T> clazz1, Class<K> clazz2) {
@@ -66,7 +68,8 @@ public class JsonUtils {
             JavaType javaType = OBJECT_MAPPER.getTypeFactory().constructParametricType(clazz1, clazz2);
             t = OBJECT_MAPPER.readValue(jsonString, javaType);
         } catch (IOException ex) {
-            log.warn("Json to Bean Error", ex);
+            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
+            log.warn(jsonString);
         }
         return t;
     }
@@ -77,6 +80,7 @@ public class JsonUtils {
      * @param file  new File("src/test/resources/json_car.json")
      * @param clazz 转换指定Type.class
      * @param <T>   指定Type
+     *
      * @return JavaBean对象
      */
     public static <T> T toBean(File file, Class<T> clazz) {
@@ -84,7 +88,7 @@ public class JsonUtils {
         try {
             t = OBJECT_MAPPER.readValue(file, clazz);
         } catch (IOException ex) {
-            log.warn("Json to Bean Error", ex);
+            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
         }
         return t;
     }
@@ -95,6 +99,7 @@ public class JsonUtils {
      * @param url   new URL("file:src/test/resources/json_car.json")
      * @param clazz 转换指定Type.class
      * @param <T>   指定Type
+     *
      * @return JavaBean对象
      */
     public static <T> T toBean(URL url, Class<T> clazz) {
@@ -102,7 +107,7 @@ public class JsonUtils {
         try {
             t = OBJECT_MAPPER.readValue(url, clazz);
         } catch (IOException ex) {
-            log.warn("Json to Bean Error", ex);
+            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
         }
         return t;
     }
@@ -113,7 +118,9 @@ public class JsonUtils {
      * @param resource resource文件
      * @param clazz    指定Type.class
      * @param <T>      指定Type
+     *
      * @return JavaBean对象的list
+     *
      * @throws IOException IO异常
      */
     public static <T> List<T> toBeanList(Resource resource, Class<T> clazz) throws IOException {
@@ -127,6 +134,7 @@ public class JsonUtils {
      * @param jsonString Json字符串
      * @param clazz      指定Type.class
      * @param <T>        指定Type
+     *
      * @return JavaBean对象的list
      */
     public static <T> List<T> toBeanList(String jsonString, Class<T> clazz) {
@@ -135,7 +143,7 @@ public class JsonUtils {
         try {
             list = OBJECT_MAPPER.readValue(jsonString, type);
         } catch (IOException ex) {
-            log.warn("Json to BeanList Error", ex);
+            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
         }
         return list;
     }
@@ -164,6 +172,7 @@ public class JsonUtils {
      * @param map   map对象
      * @param clazz 指定Type.class
      * @param <T>   指定Type
+     *
      * @return 转换后的Bean
      */
     public static <T> T mapToBean(final Map map, Class<T> clazz) {
@@ -181,7 +190,7 @@ public class JsonUtils {
 //        try {
 //            jsonString = XML_MAPPER.writeValueAsString(bean);
 //        } catch (IOException ex) {
-//            log.warn("Bean to Json Error", ex);
+//            log.warn("Json to Bean Error, cause by: {}", ex.getMessage());
 //        }
 //
 //        return jsonString;

@@ -1,5 +1,6 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
+import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
@@ -7,11 +8,16 @@ import com.mirai.lyf.bot.persistence.domain.master.Roster;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.OperateLogService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroupMemberReduce;
+import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
+import love.forte.simbot.api.message.containers.AccountInfo;
+import love.forte.simbot.api.message.containers.BeOperatorInfo;
+import love.forte.simbot.api.message.containers.GroupInfo;
 import love.forte.simbot.api.message.events.GroupMemberReduce;
 import love.forte.simbot.api.sender.MsgSender;
 import love.forte.simbot.filter.MostMatchType;
@@ -29,14 +35,16 @@ public class GroupMemberReduceListener extends BaseListener {
     private final OperateLogService operateLogService;
     private final MemberService memberService;
     private final RosterService rosterService;
+    private final ConfigService configService;
 
     @Autowired
     public GroupMemberReduceListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService
-            , MemberService memberService, RosterService rosterService) {
+            , MemberService memberService, RosterService rosterService, ConfigService configService) {
         super(builderFactory);
         this.operateLogService = operateLogService;
         this.memberService = memberService;
         this.rosterService = rosterService;
+        this.configService = configService;
     }
 
     /**
@@ -52,20 +60,31 @@ public class GroupMemberReduceListener extends BaseListener {
         OperateLog operateLog = buildOperateLog(String.valueOf(reduceMsg.getReduceType()), reduceMsg);
         operateLogService.save(operateLog);
 
+        GroupInfo groupInfo = reduceMsg.getGroupInfo();
+        BeOperatorInfo beOperatorInfo = reduceMsg.getBeOperatorInfo();
+        AccountInfo accountInfo = reduceMsg.getAccountInfo();
+
         // 更新群员信息
-        Member member = memberService.findByGroupCodeAndQqCode(reduceMsg.getGroupInfo().getGroupCodeNumber(),
-                reduceMsg.getBeOperatorInfo().getBeOperatorCodeNumber());
+        Member member = memberService.findByGroupCodeAndQqCode(groupInfo.getGroupCodeNumber(),
+                beOperatorInfo.getBeOperatorCodeNumber());
+        boolean b = reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK;
         if (member != null) {
-            member.setStatus(reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK ? Member.Status.KICK :
+            member.setStatus(b ? Member.Status.KICK :
                     Member.Status.LEAVE);
             memberService.save(member);
         }
         // 若成员是被踢出，加黑名单
-        if (reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK) {
+        if (b) {
             Roster roster = new Roster();
-            roster.setMemberCode(reduceMsg.getAccountInfo().getAccountCodeNumber());
+            roster.setMemberCode(accountInfo.getAccountCodeNumber());
             roster.setType(Roster.Type.BLACK_ROSTER);
             rosterService.save(roster);
         }
+        String msgPushGroup = configService.findValue(ConfigCodeKit.MSG_PUSH_GROUP);
+        MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
+        builder.text(groupInfo.getGroupName() + " 的【" + beOperatorInfo.getBeOperatorNicknameAndRemark()
+                + "】，QQ号码为：" + beOperatorInfo.getBeOperatorCodeNumber() + "，" + (b ? "被踢出" : "主动退出") + "了群聊。");
+        sender.SENDER.sendGroupMsg(msgPushGroup, builder.build());
+
     }
 }

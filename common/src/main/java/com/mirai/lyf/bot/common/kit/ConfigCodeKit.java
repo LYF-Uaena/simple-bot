@@ -8,14 +8,6 @@ package com.mirai.lyf.bot.common.kit;
 public class ConfigCodeKit {
 
     /**
-     * 测试机器人号密
-     */
-    public static final String TEST_BOTS = "testBots";
-    /**
-     * 正式机器人号密
-     */
-    public static final String FORMAL_ROBOT = "formalBots";
-    /**
      * 审核机器人
      */
     public static final String VERIFY_BOT = "verifyRobot";
@@ -31,6 +23,10 @@ public class ConfigCodeKit {
      * 测试群
      */
     public static final String TEST_GROUP = "testGroup";
+    /**
+     * 消息通知群
+     */
+    public static final String MSG_PUSH_GROUP = "msgPushGroup";
     /**
      * 正式群
      */

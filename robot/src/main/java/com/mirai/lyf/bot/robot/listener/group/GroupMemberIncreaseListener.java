@@ -1,18 +1,22 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
+import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.utils.DateUtils;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.OperateLogService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroupMemberIncrease;
-import love.forte.simbot.api.message.MessageContent;
 import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
+import love.forte.simbot.api.message.containers.AccountInfo;
+import love.forte.simbot.api.message.containers.BeOperatorInfo;
+import love.forte.simbot.api.message.containers.GroupInfo;
 import love.forte.simbot.api.message.events.GroupMemberIncrease;
 import love.forte.simbot.api.message.results.GroupMemberInfo;
 import love.forte.simbot.api.sender.MsgSender;
@@ -29,31 +33,34 @@ public class GroupMemberIncreaseListener extends BaseListener {
 
     private final OperateLogService operateLogService;
     private final MemberService memberService;
+    private final ConfigService configService;
 
     @Autowired
-    public GroupMemberIncreaseListener(MessageContentBuilderFactory builderFactory,
-                                       OperateLogService operateLogService, MemberService memberService) {
+    public GroupMemberIncreaseListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService, MemberService memberService, ConfigService configService) {
         super(builderFactory);
         this.operateLogService = operateLogService;
         this.memberService = memberService;
+        this.configService = configService;
     }
 
     /**
      * 群成员增加
      */
     @OnGroupMemberIncrease
-    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT,
-            CustomerFilter.FORMAL_GROUP})
+    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP})
     public void groupMemberIncreaseListener(GroupMemberIncrease increaseMsg, MsgSender sender) {
         log.info("新增了一名群成员");
-        long groupCode = increaseMsg.getGroupInfo().getGroupCodeNumber();
-        long beOperatorCode = increaseMsg.getBeOperatorInfo().getBeOperatorCodeNumber();
+        GroupInfo groupInfo = increaseMsg.getGroupInfo();
+        AccountInfo accountInfo = increaseMsg.getAccountInfo();
+        BeOperatorInfo beOperatorInfo = increaseMsg.getBeOperatorInfo();
+
+        long groupCode = groupInfo.getGroupCodeNumber();
+        long beOperatorCode = beOperatorInfo.getBeOperatorCodeNumber();
+
 
         // 发送欢迎新成员的信息
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-        builder
-                .at(increaseMsg.getAccountInfo().getAccountCode())
-                .text("天青色等烟雨而我在等你。欢迎加入群聊！");
+        builder.at(accountInfo.getAccountCode()).text("天青色等烟雨而我在等你。欢迎加入群聊！");
         sender.SENDER.sendGroupMsg(groupCode, builder.build());
 
         // 保存操作记录
@@ -69,5 +76,10 @@ public class GroupMemberIncreaseListener extends BaseListener {
             member.setLastSpeakTime(DateUtils.now());
             memberService.save(member);
         }
+        String msgPushGroup = configService.findValue(ConfigCodeKit.MSG_PUSH_GROUP);
+        builder.clear();
+        builder.text(groupInfo.getGroupName() + " 新增了【" + beOperatorInfo.getBeOperatorNicknameAndRemark() + "】，QQ号码为：" + beOperatorInfo.getBeOperatorCodeNumber() + "的成员。");
+
+        sender.SENDER.sendGroupMsg(msgPushGroup, builder.build());
     }
 }
