@@ -16,7 +16,6 @@ import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
-import com.mirai.lyf.bot.robot.annotation.ApiTimes;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
@@ -144,6 +143,9 @@ public class GroupListener extends BaseListener {
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
         Carrier<Boolean> carrier = new Carrier<>(true);
         // 图片审核结果处理
+        if (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8) {
+            return;
+        }
         // 违规处理
         if (ImageLog.ConclusionType.NON_COMPLIANCE == imageLogDto.getConclusionType()) {
             // 撤回消息，成功后发送禁言通知
@@ -158,7 +160,6 @@ public class GroupListener extends BaseListener {
                 sender.SETTER.setGroupBan(groupMsg.getGroupInfo(),
                         groupMsg.getAccountInfo(), 1, TimeUnit.DAYS);
             }
-
         }
 
         // 疑似处理
@@ -271,7 +272,7 @@ public class GroupListener extends BaseListener {
     }
 
 
-//    @OnGroup
+    //    @OnGroup
 //    @Filters(
 //            customMostMatchType = MostMatchType.ALL,
 //            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},

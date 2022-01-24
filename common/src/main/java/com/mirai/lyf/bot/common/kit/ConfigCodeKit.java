@@ -32,10 +32,6 @@ public class ConfigCodeKit {
      */
     public static final String FORMAL_GROUP = "formalGroup";
     /**
-     * 图片检测类别
-     */
-    public static final String PIC_CATEGORY = "picCategory";
-    /**
      * 接口TOKEN
      */
     public static final String ALAPI_KEY = "alApiKey";

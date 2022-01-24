@@ -1,5 +1,6 @@
 package com.mirai.lyf.bot.persistence.model.alapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,7 @@ public class ImageData {
         @JsonProperty("msg")
         private String msg;
         @JsonProperty("probability")
-        private String probability;
+        private Double probability;
     }
 
 }

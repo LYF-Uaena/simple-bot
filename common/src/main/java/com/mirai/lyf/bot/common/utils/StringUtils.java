@@ -1,6 +1,6 @@
 package com.mirai.lyf.bot.common.utils;
 
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
     /**
      * 截取字符串str中指定字符 strStart、strEnd之间的字符串
      *

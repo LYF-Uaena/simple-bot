@@ -1,5 +1,6 @@
 package com.mirai.lyf.bot.persistence.model.master;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ public class ImageLogDto {
     private String url;
     private String conclusion;
     private int conclusionType;
+    private Double probability;
     private Long apiTime;
     private Long logId;
     private List<ImageLogDetail> details;
