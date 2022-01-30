@@ -39,7 +39,7 @@ public class TextService {
         Map<String, String> params = new HashMap<>();
         params.put("token", token.getValue());
 
-        String rst = HttpUtils.post(AlApi.IMAGE_API, params);
+        String rst = HttpUtils.doHttpGet(AlApi.IMAGE_API, params);
 
         @SuppressWarnings("unchecked")
         Response<TextData> textResponse = JsonUtils.toBean(rst, Response.class, TextData.class);

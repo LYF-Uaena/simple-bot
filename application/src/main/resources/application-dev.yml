@@ -1,14 +1,11 @@
 server:
   port: 9000
 spring:
-  # 使用其他模块的yml
-  profiles:
-#    include: robot,persistence
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/bot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
     username: localUser
-    password: localPWD
+    password: localPassword
     #阿里druid连接池驱动配置信息
     type: com.alibaba.druid.pool.DruidDataSource
     #连接池的配置信息

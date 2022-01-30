@@ -71,10 +71,10 @@ public class ImageService {
         params.put("url", url);
 
         String rst = HttpUtils.doHttpPost(AlApi.IMAGE_API, params);
+        log.info(rst);
 
         @SuppressWarnings("unchecked")
         Response<ImageData> imageResult = JsonUtils.toBean(rst, Response.class, ImageData.class);
-        log.info(imageResult.toString());
 
         ImageLogDto imageLogDto = new ImageLogDto();
         imageLogService.buildImageLog(imageResult, neko, imageLogDto, member);

@@ -18,4 +18,8 @@ public class AlApi {
      * 舔狗日记
      */
     public static final String LICK_DOG_API = "https://v2.alapi.cn/api/dog";
+    /**
+     * 每日60秒早报
+     */
+    public static final String ZAO_BAO = "https://v2.alapi.cn/api/zaobao";
 }

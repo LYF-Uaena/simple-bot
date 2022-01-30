@@ -5,10 +5,13 @@ import com.mirai.lyf.bot.common.utils.DateUtils;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
+import love.forte.common.utils.Carrier;
 import love.forte.simbot.api.message.MessageContent;
+import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
 import love.forte.simbot.api.message.assists.Permissions;
 import love.forte.simbot.api.message.containers.*;
+import love.forte.simbot.api.message.events.GroupMsg;
 import love.forte.simbot.api.message.results.GroupMemberInfo;
 import love.forte.simbot.api.sender.MsgSender;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +48,23 @@ public class BaseListener {
         sender.SENDER.sendGroupMsg(groupInfo, content);
     }
 
+    /**
+     * 发送群消息
+     *
+     * @param groupMsg the group msg
+     * @param sender   the sender
+     */
+    public void recallGroupMessage(GroupMsg groupMsg, MsgSender sender) {
+        // 撤回消息
+        Carrier<Boolean> carrier = sender.SETTER.setMsgRecall(groupMsg.getFlag());
+        if (carrier.get()) {
+            MessageContentBuilder text = builderFactory.getMessageContentBuilder()
+                    .at(groupMsg.getAccountInfo().getAccountCode())
+                    .text("消息似乎有点不对劲，先帮你撤回啦！！");
+            // 发送消息
+            sender.SENDER.sendGroupMsg(groupMsg, text.build());
+        }
+    }
 
     /**
      * Check member member.

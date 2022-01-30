@@ -2,6 +2,7 @@ package com.mirai.lyf.bot.robot.listener.group;
 
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
+import com.mirai.lyf.bot.common.kit.Welcome;
 import com.mirai.lyf.bot.common.utils.DateUtils;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
@@ -60,7 +61,7 @@ public class GroupMemberIncreaseListener extends BaseListener {
 
         // 发送欢迎新成员的信息
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-        builder.at(accountInfo.getAccountCode()).text("天青色等烟雨而我在等你。欢迎加入群聊！");
+        builder.at(accountInfo.getAccountCode()).text(Welcome.getWelcome());
         sender.SENDER.sendGroupMsg(groupCode, builder.build());
 
         // 保存操作记录

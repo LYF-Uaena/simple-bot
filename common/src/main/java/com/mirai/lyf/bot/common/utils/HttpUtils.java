@@ -14,100 +14,22 @@ import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * api请求
+ */
 @Slf4j
 public class HttpUtils {
-    private static volatile CloseableHttpClient HTTP_CLIENT = null;
-
-//    private HttpUtils() {
-//    }
-
-//    public static CloseableHttpClient instance() {
-//        if (HTTP_CLIENT == null) {
-//            synchronized (HttpUtils.class) {
-//                // 只需在第一次创建实例时才同步
-//                if (HTTP_CLIENT == null) {
-//                    HTTP_CLIENT = HttpClientBuilder.create().build();
-//                }
-//            }
-//        }
-//        return HTTP_CLIENT;
-//    }
-
-    /**
-     * post 请求
-     *
-     * @param api  请求的api
-     * @param list 请求参数
-     *
-     * @return the object
-     */
-    @NotNull
-    public static String post(String api, Map<String, String> list) {
-        // 获得Http客户端(可以理解为:你得先有一个浏览器;注意:实际上HttpClient与浏览器是不一样的)
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-        // 参数
-        // 字符数据最好encoding以下;这样一来，某些特殊字符才能传过去(如:某人的名字就是“&”,不encoding的话,传不过去)
-        HttpPost httpPost = new HttpPost(api);
-        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf8");
-
-        UrlEncodedFormEntity entityParam = null;
-
-        try {
-            List<NameValuePair> params = new ArrayList<>();
-            list.forEach((k, v) -> params.add(new BasicNameValuePair(k, v)));
-            entityParam = new UrlEncodedFormEntity(params, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        httpPost.setEntity(entityParam);
-        // 设置ContentType(注:如果只是传普通参数的话,ContentType不一定非要用application/json)
-
-        // 响应模型
-        CloseableHttpResponse response = null;
-        String rst = "";
-        try {
-            // 由客户端执行(发送)Post请求
-            response = httpClient.execute(httpPost);
-            // 从响应模型中获取响应实体
-            HttpEntity responseEntity = response.getEntity();
-
-            if (responseEntity != null) {
-                rst = EntityUtils.toString(responseEntity);
-            }
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // 释放资源
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return rst;
-    }
-
     private static final CloseableHttpClient httpClient;
 
     static {
@@ -173,7 +95,7 @@ public class HttpUtils {
      *
      * @return
      */
-    public static String doHttpGet(String uri, Map<String, String> getParams) {
+    public static String  doHttpGet(String uri, Map<String, String> getParams) {
         HttpGet httpGet = null;
         CloseableHttpResponse response = null;
         try {
@@ -210,6 +132,50 @@ public class HttpUtils {
     }
 
     /**
+     * httpclient get
+     *
+     * @param uri       请求地址
+     * @param getParams 请求参数
+     *
+     * @return
+     */
+    public static HttpEntity doHttpGetFile(String uri, Map<String, String> getParams) {
+        HttpGet httpGet = null;
+        CloseableHttpResponse response = null;
+        try {
+            URIBuilder uriBuilder = new URIBuilder(uri);
+            if (null != getParams && !getParams.isEmpty()) {
+                List<NameValuePair> list = new ArrayList<>();
+                for (Map.Entry<String, String> param : getParams.entrySet()) {
+                    list.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+                }
+                uriBuilder.setParameters(list);
+            }
+            httpGet = new HttpGet(uriBuilder.build());
+            response = httpClient.execute(httpGet);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (HttpStatus.SC_OK == statusCode) {
+                HttpEntity entity = response.getEntity();
+                if (null != entity) {
+                    return entity;
+                }
+            }
+        } catch (Exception e) {
+            log.error("CloseableHttpClient-get-请求异常", e);
+        } finally {
+            try {
+                if (null != response)
+                    response.close();
+                if (null != httpGet)
+                    httpGet.releaseConnection();
+            } catch (Exception e) {
+                log.error("CloseableHttpClient-post-请求异常,释放连接异常", e);
+            }
+        }
+        return null;
+    }
+
+    /**
      * httpclient post
      *
      * @param uri       请求地址
@@ -237,6 +203,9 @@ public class HttpUtils {
                 if (null != entity) {
                     return EntityUtils.toString(entity, "utf-8");
                 }
+            }else if (HttpStatus.SC_MOVED_TEMPORARILY == statusCode){
+                Header[] locations = response.getHeaders("location");
+                return locations[0].toString().split("!")[0].replace("Location: ","");
             }
         } catch (Exception e) {
             log.error("CloseableHttpClient-post-请求异常", e);
