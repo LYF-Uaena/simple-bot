@@ -3,11 +3,11 @@ package com.mirai.lyf.bot.robot.listener.group;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.service.master.OperateLogService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.Filters;
 import love.forte.simbot.annotation.OnGroupMute;
-import love.forte.simbot.api.message.MessageContentBuilder;
 import love.forte.simbot.api.message.MessageContentBuilderFactory;
 import love.forte.simbot.api.message.events.GroupMute;
 import love.forte.simbot.api.sender.MsgSender;
@@ -24,8 +24,8 @@ public class GroupMuteListener extends BaseListener {
     private final OperateLogService operateLogService;
 
     @Autowired
-    public GroupMuteListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService) {
-        super(builderFactory);
+    public GroupMuteListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService, ConfigService configService) {
+        super(builderFactory, configService);
         this.operateLogService = operateLogService;
     }
 
@@ -37,8 +37,8 @@ public class GroupMuteListener extends BaseListener {
         // 保存操作记录
         OperateLog operateLog = buildOperateLog(String.valueOf(muteMsg.getMuteActionType()), muteMsg);
         operateLogService.save(operateLog);
-        MessageContentBuilder image = builderFactory.getMessageContentBuilder().image("classpath:static/welcome.gif");
-        sendGroupMessage(muteMsg.getGroupInfo(), image.build(), sender);
+//        MessageContentBuilder image = builderFactory.getMessageContentBuilder().image("classpath:static/welcome.gif");
+//        sendGroupMessage(muteMsg.getGroupInfo(), image.build(), sender);
     }
 
 

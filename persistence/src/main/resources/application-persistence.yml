@@ -7,8 +7,8 @@ spring:
     show-sql: false
     open-in-view: false
     database-platform: org.hibernate.dialect.MySQL5Dialect
-  #    jackson:
-  #      property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    jackson:
+      property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
   redis:
     ################ Redis 基础配置 ##############
     # 链接超时时间 单位 ms（毫秒）

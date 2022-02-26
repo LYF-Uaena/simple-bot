@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +27,7 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
     /**
      * Instantiates a new Config service.
      *
-     * @param repo the config repository
+     * @param repo          the config repository
      * @param redisTemplate
      */
     @Autowired
@@ -34,15 +36,21 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
         this.redisTemplate = redisTemplate;
     }
 
+    @Transactional
     public Config save(Config config) {
         return repo.save(config);
     }
 
     /**
-     * Find config.
-     *
-     * @param code the code
-     * @return the config
+     * 获取配置值
+     */
+    public String findValue(String code) {
+        Config config = find(code);
+        return Optional.ofNullable(config).map(Config::getValue).orElse("");
+    }
+
+    /**
+     * 获取配置
      */
     public Config find(String code) {
         String prefixKey = PREFIX_KEY + code;
@@ -54,5 +62,17 @@ public class ConfigService extends CommonService<Config, ConfigRepository> {
         redisTemplate.opsForValue().set(prefixKey, config);
         redisTemplate.expire(prefixKey, 3600L, TimeUnit.SECONDS);
         return config;
+    }
+
+    public void setRedis(String key, Serializable value) {
+        key = PREFIX_KEY + key;
+        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.expire(key, 3600L, TimeUnit.SECONDS);
+
+    }
+
+    public Serializable getRedis(String key) {
+        key = PREFIX_KEY + key;
+        return redisTemplate.opsForValue().get(key);
     }
 }

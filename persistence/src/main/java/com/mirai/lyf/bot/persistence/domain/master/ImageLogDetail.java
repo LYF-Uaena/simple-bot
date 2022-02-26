@@ -33,7 +33,7 @@ public class ImageLogDetail extends MasterEntity {
     private String msg;
 
     @Column(columnDefinition = ("varchar(200) DEFAULT NULL COMMENT '提示'"))
-    private String probability;
+    private Double probability;
 
     /**
      * 图片违规类别

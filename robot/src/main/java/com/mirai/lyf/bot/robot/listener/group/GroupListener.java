@@ -1,5 +1,6 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
+import catcode.CatCodeUtil;
 import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.kit.HttpCode;
@@ -12,10 +13,12 @@ import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
 import com.mirai.lyf.bot.persistence.service.alapi.ImageService;
 import com.mirai.lyf.bot.persistence.service.alapi.LickDogService;
+import com.mirai.lyf.bot.persistence.service.alapi.ZaoBaoService;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
@@ -39,8 +42,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.io.*;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,13 +64,14 @@ public class GroupListener extends BaseListener {
     private final RosterService rosterService;
     private final RedisTemplate<String, Integer> redisTemplate;
     private final LickDogService lickDogService;
+    private final ZaoBaoService zaoBaoService;
 
     @Autowired
-    public GroupListener(MessageContentBuilderFactory builderFactory, MemberMessageService memberMessageService,
+    public GroupListener(MessageContentBuilderFactory builderFactory, ConfigService configService, MemberMessageService memberMessageService,
                          MemberService memberService, ImageService imageService, ImageLogService imageLogService,
                          RosterService rosterService, RedisTemplate<String, Integer> redisTemplate,
-                         LickDogService lickDogService) {
-        super(builderFactory);
+                         LickDogService lickDogService, ZaoBaoService zaoBaoService) {
+        super(builderFactory, configService);
         this.memberMessageService = memberMessageService;
         this.memberService = memberService;
         this.imageService = imageService;
@@ -71,6 +79,7 @@ public class GroupListener extends BaseListener {
         this.rosterService = rosterService;
         this.redisTemplate = redisTemplate;
         this.lickDogService = lickDogService;
+        this.zaoBaoService = zaoBaoService;
     }
 
     /**
@@ -85,7 +94,7 @@ public class GroupListener extends BaseListener {
             CustomerFilter.FORMAL_GROUP})
     public void updateLastSpeakTime(GroupMsg groupMsg, MsgSender sender, Bot bot) {
         // 更新群员最后发言时间
-
+        groupMsg.get
         Member member = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
 
         // 保存群员发送的消息
@@ -97,6 +106,11 @@ public class GroupListener extends BaseListener {
 
         // 检测图片
         MessageContent images = groupMsg.getMsgContent();
+        List<Neko> rich = images.getCats("rich");
+        if (!CollectionUtils.isEmpty(rich)) {
+            recallGroupMessage(groupMsg, sender);
+            return;
+        }
         List<Neko> nekoList = images.getCats("image");
         nekoList.forEach(neko -> {
             log.info("检测了一张来自{}的图片", groupMsg.getAccountInfo().getAccountCode());
@@ -140,6 +154,9 @@ public class GroupListener extends BaseListener {
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
         Carrier<Boolean> carrier = new Carrier<>(true);
         // 图片审核结果处理
+        if (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8) {
+            return;
+        }
         // 违规处理
         if (ImageLog.ConclusionType.NON_COMPLIANCE == imageLogDto.getConclusionType()) {
             // 撤回消息，成功后发送禁言通知
@@ -154,7 +171,6 @@ public class GroupListener extends BaseListener {
                 sender.SETTER.setGroupBan(groupMsg.getGroupInfo(),
                         groupMsg.getAccountInfo(), 1, TimeUnit.DAYS);
             }
-
         }
 
         // 疑似处理
@@ -267,16 +283,16 @@ public class GroupListener extends BaseListener {
     }
 
 
-    @OnGroup
-    @Filters(
-            customMostMatchType = MostMatchType.ALL,
-            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-            mostMatchType = MostMatchType.ANY,
-            value = {
-                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
-            }
-    )
-    public void lickDogListener(GroupMsg msg, MsgSender sender) {
+    //    @OnGroup
+//    @Filters(
+//            customMostMatchType = MostMatchType.ALL,
+//            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
+//            mostMatchType = MostMatchType.ANY,
+//            value = {
+//                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
+//            }
+//    )
+    public Boolean lickDogListener(GroupMsg msg, MsgSender sender) {
         Response<LickDogData> lickDogResponse = lickDogService.lickDog();
         if (lickDogResponse.getCode() == HttpCode.SUCCESS) {
             MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
@@ -284,6 +300,73 @@ public class GroupListener extends BaseListener {
                     .text(lickDogResponse.getData().getContent());
 
             sender.SENDER.sendGroupMsg(msg, builder.build());
+        }
+        if (lickDogResponse.getCode() == HttpCode.TIMES_UP) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    @OnGroup
+    @Filters(
+            customMostMatchType = MostMatchType.ALL,
+            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
+            mostMatchType = MostMatchType.ANY,
+            value = {
+                    @Filter(value = "早报", matchType = MatchType.STARTS_WITH)
+            }
+    )
+    public void zaoBaoListener(GroupMsg msg, MsgSender sender) throws IOException {
+
+        String zaoBaoDataResponse = zaoBaoService.zaoBao();
+
+        // 获取猫猫码工具
+        CatCodeUtil util = CatCodeUtil.INSTANCE;
+
+        // 构建image, 第二个参数为true代表参数值需要进行转义
+        String image = util.toCat("image", true, "url=" + zaoBaoDataResponse);
+//
+//        // 多个CAT码、CAT码与文本消息之间直接进行拼接
+//        sender.sendGroupMsg("14141414", at + " 你的图片：" + image);
+
+        sender.SENDER.sendGroupMsg(msg, image);
+    }
+
+    /**
+     * 获取最后发言时间
+     *
+     * @param groupMsg the group msg
+     * @param sender   the sender
+     */
+    @OnGroup
+    @Filter(value = "发言时间", matchType = MatchType.CONTAINS, bots = {"2635200012"}, atBot = true, at = {"2635200012"})
+    public void Listener(GroupMsg groupMsg, MsgSender sender) {
+        if (groupMsg.getAccountInfo().getAccountCodeNumber() == 571675921L) {
+
+            // 获取群成员列表
+            GroupMemberList memberList = sender.GETTER.getGroupMemberList(groupMsg.getGroupInfo().getGroupCode());
+
+            MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
+            int count = 0;
+            for (GroupMemberInfo info : memberList) {
+                Date date = new Date(info.getLastSpeakTime());
+                Calendar instance = Calendar.getInstance();
+                instance.setTime(date);
+
+                instance.set(Calendar.YEAR, 1);
+                Date time = instance.getTime();
+                if (date.before(time)) {
+                    count++;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String sd = sdf.format(date);
+                builder.text(info.getAccountNickname() + "的最后发言时间为：" + sd + "\n");
+
+            }
+            sender.SENDER.sendGroupMsg(groupMsg, builder.build());
+//            sender.SENDER.sendGroupMsg(groupMsg, "当前共有" + count + "人超过一年未发言");
+        } else {
+            sender.SENDER.sendGroupMsg(groupMsg, "您当前没有权限哦！");
         }
     }
 

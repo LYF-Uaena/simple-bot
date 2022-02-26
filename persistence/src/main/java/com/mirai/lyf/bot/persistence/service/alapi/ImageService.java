@@ -2,6 +2,7 @@ package com.mirai.lyf.bot.persistence.service.alapi;
 
 
 import catcode.Neko;
+import cn.hutool.core.img.Img;
 import com.mirai.lyf.bot.common.kit.AlApi;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.HttpUtils;
@@ -19,12 +20,15 @@ import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.support.atomic.RedisAtomicDouble;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The type Image service.
@@ -53,9 +57,12 @@ public class ImageService {
      * @param neko     the neko
      * @param member   the member
      * @param imageLog the image log
+     *
      * @return the image result
      */
     public ImageLogDto verifyPicture(Neko neko, Member member, ImageLog imageLog) {
+        log.info("检测开始---");
+        long start = System.currentTimeMillis();
         String url = neko.get("url");
         // 查询token
         Config token = configService.find(ConfigCodeKit.ALAPI_KEY);
@@ -63,11 +70,11 @@ public class ImageService {
         params.put("token", token.getValue());
         params.put("url", url);
 
-        String rst = HttpUtils.post(AlApi.IMAGE_API, params);
+        String rst = HttpUtils.doHttpPost(AlApi.IMAGE_API, params);
+        log.info(rst);
 
         @SuppressWarnings("unchecked")
         Response<ImageData> imageResult = JsonUtils.toBean(rst, Response.class, ImageData.class);
-        log.info(imageResult.toString());
 
         ImageLogDto imageLogDto = new ImageLogDto();
         imageLogService.buildImageLog(imageResult, neko, imageLogDto, member);
@@ -87,10 +94,22 @@ public class ImageService {
                 detail.setProbability(item.getProbability());
                 detail.setLevel(item.getLevel());
                 details.add(detail);
+
+                Double mainProbability = imageLog.getProbability();
+                Double itemProbability = item.getProbability();
+
+                if (mainProbability != null && mainProbability.compareTo(itemProbability) < 0) {
+                    imageLogDto.setProbability(itemProbability);
+                    imageLog.setProbability(itemProbability);
+                }
             });
             imageLogDetailService.saveAll(details);
         }
 
+        imageLogService.save(imageLog);
+        long end = System.currentTimeMillis();
+        log.info("检测结束---");
+        log.info("本次共花费：" + (end - start) + "毫秒");
         return imageLogDto;
     }
 
