@@ -1,10 +1,13 @@
 package com.mirai.lyf.bot.robot.listener.base;
 
 import catcode.CatCodeUtil;
+import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.DateUtils;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
+import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import love.forte.common.utils.Carrier;
 import love.forte.simbot.api.message.MessageContent;
 import love.forte.simbot.api.message.MessageContentBuilder;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Base listener.
@@ -29,11 +33,13 @@ public class BaseListener {
 
     public static final CatCodeUtil catCodeUtil = CatCodeUtil.INSTANCE;
     public final MessageContentBuilderFactory builderFactory;
+    public final ConfigService configService;
 
 
     @Autowired
-    public BaseListener(MessageContentBuilderFactory builderFactory) {
+    public BaseListener(MessageContentBuilderFactory builderFactory, ConfigService configService) {
         this.builderFactory = builderFactory;
+        this.configService = configService;
     }
 
 
@@ -46,6 +52,14 @@ public class BaseListener {
      */
     public void sendGroupMessage(GroupInfo groupInfo, MessageContent content, MsgSender sender) {
         sender.SENDER.sendGroupMsg(groupInfo, content);
+    }
+
+    public void sendGroupBan(String beOperateAccountCode, MsgSender sender) {
+        Config config = configService.find(ConfigCodeKit.FORMAL_GROUP);
+        String[] split = config.getValue().split(",");
+        for (String groupCode : split) {
+            sender.SETTER.setGroupBan(groupCode, beOperateAccountCode, 1, TimeUnit.DAYS);
+        }
     }
 
     /**
@@ -73,6 +87,7 @@ public class BaseListener {
      * @param accountInfo   the account info
      * @param groupInfo     the group info
      * @param memberService the member service
+     *
      * @return the member
      */
     @NotNull
@@ -104,6 +119,7 @@ public class BaseListener {
      * Build member member.
      *
      * @param memberInfo the member info
+     *
      * @return the member
      */
     @NotNull
@@ -125,6 +141,7 @@ public class BaseListener {
      * @param <T>  the type parameter
      * @param type the type
      * @param msg  the msg
+     *
      * @return 数据实体 operate log
      */
     @NotNull

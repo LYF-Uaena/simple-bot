@@ -35,16 +35,14 @@ public class GroupMemberReduceListener extends BaseListener {
     private final OperateLogService operateLogService;
     private final MemberService memberService;
     private final RosterService rosterService;
-    private final ConfigService configService;
 
     @Autowired
     public GroupMemberReduceListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService
             , MemberService memberService, RosterService rosterService, ConfigService configService) {
-        super(builderFactory);
+        super(builderFactory, configService);
         this.operateLogService = operateLogService;
         this.memberService = memberService;
         this.rosterService = rosterService;
-        this.configService = configService;
     }
 
     /**

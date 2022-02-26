@@ -1,7 +1,7 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.annotation.Filters;
@@ -23,8 +23,8 @@ import java.util.Optional;
 @Component
 public class GroupMemberPermissionChangedListener extends BaseListener {
 
-    public GroupMemberPermissionChangedListener(MessageContentBuilderFactory builderFactory) {
-        super(builderFactory);
+    public GroupMemberPermissionChangedListener(MessageContentBuilderFactory builderFactory, ConfigService configService) {
+        super(builderFactory, configService);
     }
 
     @OnGroupMemberPermissionChanged

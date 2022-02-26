@@ -34,14 +34,12 @@ public class GroupMemberIncreaseListener extends BaseListener {
 
     private final OperateLogService operateLogService;
     private final MemberService memberService;
-    private final ConfigService configService;
 
     @Autowired
-    public GroupMemberIncreaseListener(MessageContentBuilderFactory builderFactory, OperateLogService operateLogService, MemberService memberService, ConfigService configService) {
-        super(builderFactory);
+    public GroupMemberIncreaseListener(MessageContentBuilderFactory builderFactory, ConfigService configService, OperateLogService operateLogService, MemberService memberService) {
+        super(builderFactory, configService);
         this.operateLogService = operateLogService;
         this.memberService = memberService;
-        this.configService = configService;
     }
 
     /**

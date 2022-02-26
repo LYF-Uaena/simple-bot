@@ -4,14 +4,12 @@ import catcode.CatCodeUtil;
 import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.kit.HttpCode;
-import com.mirai.lyf.bot.common.kit.MessageType;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.MemberMessage;
 import com.mirai.lyf.bot.persistence.domain.master.Roster;
 import com.mirai.lyf.bot.persistence.model.alapi.LickDogData;
 import com.mirai.lyf.bot.persistence.model.alapi.Response;
-import com.mirai.lyf.bot.persistence.model.alapi.ZaoBaoData;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
 import com.mirai.lyf.bot.persistence.service.alapi.ImageService;
 import com.mirai.lyf.bot.persistence.service.alapi.LickDogService;
@@ -20,6 +18,7 @@ import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
@@ -37,8 +36,6 @@ import love.forte.simbot.api.sender.MsgSender;
 import love.forte.simbot.bot.Bot;
 import love.forte.simbot.filter.MatchType;
 import love.forte.simbot.filter.MostMatchType;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -70,11 +67,11 @@ public class GroupListener extends BaseListener {
     private final ZaoBaoService zaoBaoService;
 
     @Autowired
-    public GroupListener(MessageContentBuilderFactory builderFactory, MemberMessageService memberMessageService,
+    public GroupListener(MessageContentBuilderFactory builderFactory, ConfigService configService, MemberMessageService memberMessageService,
                          MemberService memberService, ImageService imageService, ImageLogService imageLogService,
                          RosterService rosterService, RedisTemplate<String, Integer> redisTemplate,
                          LickDogService lickDogService, ZaoBaoService zaoBaoService) {
-        super(builderFactory);
+        super(builderFactory, configService);
         this.memberMessageService = memberMessageService;
         this.memberService = memberService;
         this.imageService = imageService;
@@ -97,7 +94,7 @@ public class GroupListener extends BaseListener {
             CustomerFilter.FORMAL_GROUP})
     public void updateLastSpeakTime(GroupMsg groupMsg, MsgSender sender, Bot bot) {
         // 更新群员最后发言时间
-
+        groupMsg.get
         Member member = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
 
         // 保存群员发送的消息
