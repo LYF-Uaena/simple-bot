@@ -22,4 +22,8 @@ public class AlApi {
      * 每日60秒早报
      */
     public static final String ZAO_BAO = "https://v2.alapi.cn/api/zaobao";
+    /**
+     * 天气
+     */
+    public static final String TIAN_QI = "https://v2.alapi.cn/api/tianqi";
 }

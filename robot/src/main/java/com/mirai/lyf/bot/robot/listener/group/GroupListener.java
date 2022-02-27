@@ -1,6 +1,5 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
-import catcode.CatCodeUtil;
 import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.kit.HttpCode;
@@ -8,12 +7,8 @@ import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
 import com.mirai.lyf.bot.persistence.domain.master.Member;
 import com.mirai.lyf.bot.persistence.domain.master.MemberMessage;
 import com.mirai.lyf.bot.persistence.domain.master.Roster;
-import com.mirai.lyf.bot.persistence.model.alapi.LickDogData;
-import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
 import com.mirai.lyf.bot.persistence.service.alapi.ImageService;
-import com.mirai.lyf.bot.persistence.service.alapi.LickDogService;
-import com.mirai.lyf.bot.persistence.service.alapi.ZaoBaoService;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
@@ -42,7 +37,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -63,14 +57,11 @@ public class GroupListener extends BaseListener {
     private final ImageLogService imageLogService;
     private final RosterService rosterService;
     private final RedisTemplate<String, Integer> redisTemplate;
-    private final LickDogService lickDogService;
-    private final ZaoBaoService zaoBaoService;
 
     @Autowired
     public GroupListener(MessageContentBuilderFactory builderFactory, ConfigService configService, MemberMessageService memberMessageService,
                          MemberService memberService, ImageService imageService, ImageLogService imageLogService,
-                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate,
-                         LickDogService lickDogService, ZaoBaoService zaoBaoService) {
+                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate) {
         super(builderFactory, configService);
         this.memberMessageService = memberMessageService;
         this.memberService = memberService;
@@ -78,8 +69,6 @@ public class GroupListener extends BaseListener {
         this.imageLogService = imageLogService;
         this.rosterService = rosterService;
         this.redisTemplate = redisTemplate;
-        this.lickDogService = lickDogService;
-        this.zaoBaoService = zaoBaoService;
     }
 
     /**
@@ -94,7 +83,6 @@ public class GroupListener extends BaseListener {
             CustomerFilter.FORMAL_GROUP})
     public void updateLastSpeakTime(GroupMsg groupMsg, MsgSender sender, Bot bot) {
         // 更新群员最后发言时间
-        groupMsg.get
         Member member = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
 
         // 保存群员发送的消息
@@ -154,7 +142,7 @@ public class GroupListener extends BaseListener {
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
         Carrier<Boolean> carrier = new Carrier<>(true);
         // 图片审核结果处理
-        if (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8) {
+        if (imageLogDto.getProbability() == null || (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8)) {
             return;
         }
         // 违规处理
@@ -280,56 +268,6 @@ public class GroupListener extends BaseListener {
         MessageContent msg = builder.text("更新成功，共更新" + count + "人！").build();
 
         sender.SENDER.sendGroupMsg(groupMsg, msg);
-    }
-
-
-    //    @OnGroup
-//    @Filters(
-//            customMostMatchType = MostMatchType.ALL,
-//            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-//            mostMatchType = MostMatchType.ANY,
-//            value = {
-//                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
-//            }
-//    )
-    public Boolean lickDogListener(GroupMsg msg, MsgSender sender) {
-        Response<LickDogData> lickDogResponse = lickDogService.lickDog();
-        if (lickDogResponse.getCode() == HttpCode.SUCCESS) {
-            MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-            builder.at(msg.getAccountInfo().getAccountCode())
-                    .text(lickDogResponse.getData().getContent());
-
-            sender.SENDER.sendGroupMsg(msg, builder.build());
-        }
-        if (lickDogResponse.getCode() == HttpCode.TIMES_UP) {
-            return Boolean.FALSE;
-        }
-        return Boolean.TRUE;
-    }
-
-    @OnGroup
-    @Filters(
-            customMostMatchType = MostMatchType.ALL,
-            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-            mostMatchType = MostMatchType.ANY,
-            value = {
-                    @Filter(value = "早报", matchType = MatchType.STARTS_WITH)
-            }
-    )
-    public void zaoBaoListener(GroupMsg msg, MsgSender sender) throws IOException {
-
-        String zaoBaoDataResponse = zaoBaoService.zaoBao();
-
-        // 获取猫猫码工具
-        CatCodeUtil util = CatCodeUtil.INSTANCE;
-
-        // 构建image, 第二个参数为true代表参数值需要进行转义
-        String image = util.toCat("image", true, "url=" + zaoBaoDataResponse);
-//
-//        // 多个CAT码、CAT码与文本消息之间直接进行拼接
-//        sender.sendGroupMsg("14141414", at + " 你的图片：" + image);
-
-        sender.SENDER.sendGroupMsg(msg, image);
     }
 
     /**
