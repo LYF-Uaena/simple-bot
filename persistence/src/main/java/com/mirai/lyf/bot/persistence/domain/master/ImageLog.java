@@ -1,17 +1,19 @@
 package com.mirai.lyf.bot.persistence.domain.master;
 
 import com.mirai.lyf.bot.persistence.domain.base.MasterEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.LastModifiedDate;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+
+import static com.mirai.lyf.bot.persistence.domain.master.ImageLog.TABLE_NAME;
+
 
 /**
  * 图片log
@@ -19,12 +21,15 @@ import java.sql.Timestamp;
  * @author LYF on 2020-09-28
  */
 @Entity
-@Data
-@Table(name = "m_image_logs")
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Table(name = TABLE_NAME)
 @EntityListeners(AuditingEntityListener.class)
 public class ImageLog extends MasterEntity {
+    public static final String TABLE_NAME = "m_image_logs";
+
     @Column(nullable = false, columnDefinition = ("int(3) DEFAULT 0 COMMENT '请求返回状态code'"))
     private int code;
 

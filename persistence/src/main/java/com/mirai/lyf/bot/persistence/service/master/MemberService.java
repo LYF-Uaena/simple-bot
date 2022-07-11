@@ -1,6 +1,6 @@
 package com.mirai.lyf.bot.persistence.service.master;
 
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.repository.master.MemberRepository;
 import com.mirai.lyf.bot.persistence.service.CommonService;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @description
  */
 @Service
-public class MemberService extends CommonService<Member, MemberRepository> {
+public class MemberService extends CommonService<MemberInfo, MemberRepository> {
 
     @Autowired
     public MemberService(MemberRepository repo) {
@@ -26,9 +26,10 @@ public class MemberService extends CommonService<Member, MemberRepository> {
      *
      * @param groupCode  the group code
      * @param memberCode the member code
+     *
      * @return the member
      */
-    public Member findByGroupCodeAndQqCode(@NotNull Long groupCode, @NotNull Long memberCode) {
+    public MemberInfo findByGroupCodeAndQqCode(@NotNull Long groupCode, @NotNull Long memberCode) {
         return repo.findByGroupCodeAndMemberCode(groupCode, memberCode);
     }
 
@@ -37,9 +38,10 @@ public class MemberService extends CommonService<Member, MemberRepository> {
      *
      * @param groupCode  the group code
      * @param memberCode the member code
+     *
      * @return the member
      */
-    public Member isExist(@NotNull Long groupCode, @NotNull Long memberCode) {
+    public MemberInfo isExist(@NotNull Long groupCode, @NotNull Long memberCode) {
         return repo.findByGroupCodeAndMemberCode(groupCode, memberCode);
     }
 

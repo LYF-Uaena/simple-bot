@@ -5,7 +5,7 @@ import com.mirai.lyf.bot.common.kit.AlApi;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.alapi.TextData;
@@ -32,7 +32,7 @@ public class TextService {
         this.configService = configService;
     }
 
-    public Response<TextData> verifyText(String text, Member member) {
+    public Response<TextData> verifyText(String text, MemberInfo memberInfo) {
 
         // 查询token
         Config token = configService.find(ConfigCodeKit.ALAPI_KEY);

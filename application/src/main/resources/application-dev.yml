@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/bot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/bot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
     username: localUser
     password: localPassword
     #阿里druid连接池驱动配置信息
@@ -34,8 +34,14 @@ spring:
     ################ Redis 基础配置 ##############
     # Redis服务器地址
 #    host: redis
-    host: redis
+    host: localhost
     # Redis服务器连接端口
     port: 6379
     # Redis服务器连接密码（默认为空）
     password:
+logging:
+  file:
+    name: logs/robot.log
+    path: logs/robot.log
+  level:
+    root: info

@@ -1,13 +1,9 @@
 package com.mirai.lyf.bot.schedule.task;
 
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.api.sender.MsgSender;
-import love.forte.simbot.bot.Bot;
 import love.forte.simbot.bot.BotManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * 定时任务

@@ -1,9 +1,10 @@
 package com.mirai.lyf.bot.persistence.domain.master;
 
 import com.mirai.lyf.bot.persistence.domain.base.MasterEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
@@ -11,18 +12,24 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
+import static com.mirai.lyf.bot.persistence.domain.master.OperateLog.TABLE_NAME;
+
 /**
- * The type Operate log.
+ * 操作日志
  *
- * @author LYF on 2020-09-28
+ * @author LYF.UAENA
+ * @since 2022年03月20日 12:34
  */
 @Entity
-@Data
-@Table(name = "m_operate_logs")
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Table(name = TABLE_NAME)
 @EntityListeners(AuditingEntityListener.class)
 public class OperateLog extends MasterEntity {
+    public static final String TABLE_NAME = "m_operate_logs";
+
     @Column(columnDefinition = ("bigint(20) DEFAULT NULL COMMENT 'QQ群号码'"))
     private Long groupCode;
 

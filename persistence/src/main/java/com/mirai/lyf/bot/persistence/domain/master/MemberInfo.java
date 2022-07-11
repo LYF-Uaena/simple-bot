@@ -1,23 +1,30 @@
 package com.mirai.lyf.bot.persistence.domain.master;
 
 import com.mirai.lyf.bot.persistence.domain.base.MasterEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import static com.mirai.lyf.bot.persistence.domain.master.MemberInfo.TABLE_NAME;
 
 /**
- * 群成员
+ * 群成员信息
  *
- * @author LYF on 2021-03-14
+ * @author LYF.UAENA
+ * @since 2022年03月20日 12:34
  */
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Table(
-        name = "m_members",
+        name = TABLE_NAME,
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_m_members_group_code_member_code", columnNames = {"group_code", "member_code"})
         },
@@ -25,9 +32,10 @@ import java.time.LocalDateTime;
                 @Index(name = "uk_m_members_group_code_member_code", columnList = "group_code, member_code")
         }
 )
-@EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
-public class Member extends MasterEntity {
+public class MemberInfo extends MasterEntity {
+    public static final String TABLE_NAME = "m_members";
+
     @Column(name = "group_code", columnDefinition = ("bigint(20) DEFAULT NULL COMMENT 'QQ群号码'"))
     private Long groupCode;
 
