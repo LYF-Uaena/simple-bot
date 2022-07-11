@@ -32,6 +32,10 @@ public class ConfigCodeKit {
      */
     public static final String FORMAL_GROUP = "formalGroup";
     /**
+     * 功能开关
+     */
+    public static final String FUNCTION = "functionSwitchFilter";
+    /**
      * 接口TOKEN
      */
     public static final String ALAPI_KEY = "alApiKey";

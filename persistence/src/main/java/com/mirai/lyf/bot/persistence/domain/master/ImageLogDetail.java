@@ -1,9 +1,10 @@
 package com.mirai.lyf.bot.persistence.domain.master;
 
 import com.mirai.lyf.bot.persistence.domain.base.MasterEntity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
@@ -11,17 +12,24 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
+import static com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail.TABLE_NAME;
+
 /**
- * @author LYF
- * @create 2021-06-03 14:42
- * @desc
- **/
+ * 图片检测结果详情
+ *
+ * @author LYF.UAENA
+ * @since 2022年03月20日 12:33
+ */
 @Entity
-@Data
-@Table(name = "m_image_log_details")
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Table(name = TABLE_NAME)
 @EntityListeners(AuditingEntityListener.class)
 public class ImageLogDetail extends MasterEntity {
+    public static final String TABLE_NAME = "m_image_log_details";
+
     @Column(columnDefinition = ("bigint(20) DEFAULT NULL COMMENT 'imageLogId'"))
     private Long imageLogId;
 

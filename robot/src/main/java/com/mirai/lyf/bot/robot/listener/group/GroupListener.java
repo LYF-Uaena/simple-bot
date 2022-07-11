@@ -1,24 +1,21 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
-import catcode.CatCodeUtil;
 import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.kit.HttpCode;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.master.MemberMessage;
 import com.mirai.lyf.bot.persistence.domain.master.Roster;
-import com.mirai.lyf.bot.persistence.model.alapi.LickDogData;
-import com.mirai.lyf.bot.persistence.model.alapi.Response;
+import com.mirai.lyf.bot.persistence.domain.system.SysMenu;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
 import com.mirai.lyf.bot.persistence.service.alapi.ImageService;
-import com.mirai.lyf.bot.persistence.service.alapi.LickDogService;
-import com.mirai.lyf.bot.persistence.service.alapi.ZaoBaoService;
 import com.mirai.lyf.bot.persistence.service.master.ImageLogService;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
 import com.mirai.lyf.bot.persistence.service.system.ConfigService;
+import com.mirai.lyf.bot.persistence.service.system.MenuService;
 import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.common.utils.Carrier;
@@ -42,7 +39,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -63,14 +59,12 @@ public class GroupListener extends BaseListener {
     private final ImageLogService imageLogService;
     private final RosterService rosterService;
     private final RedisTemplate<String, Integer> redisTemplate;
-    private final LickDogService lickDogService;
-    private final ZaoBaoService zaoBaoService;
+    private final MenuService menuService;
 
     @Autowired
     public GroupListener(MessageContentBuilderFactory builderFactory, ConfigService configService, MemberMessageService memberMessageService,
                          MemberService memberService, ImageService imageService, ImageLogService imageLogService,
-                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate,
-                         LickDogService lickDogService, ZaoBaoService zaoBaoService) {
+                         RosterService rosterService, RedisTemplate<String, Integer> redisTemplate, MenuService menuService) {
         super(builderFactory, configService);
         this.memberMessageService = memberMessageService;
         this.memberService = memberService;
@@ -78,8 +72,7 @@ public class GroupListener extends BaseListener {
         this.imageLogService = imageLogService;
         this.rosterService = rosterService;
         this.redisTemplate = redisTemplate;
-        this.lickDogService = lickDogService;
-        this.zaoBaoService = zaoBaoService;
+        this.menuService = menuService;
     }
 
     /**
@@ -90,17 +83,15 @@ public class GroupListener extends BaseListener {
      * @param bot      the bot
      */
     @OnGroup
-    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT,
-            CustomerFilter.FORMAL_GROUP})
+    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP})
     public void updateLastSpeakTime(GroupMsg groupMsg, MsgSender sender, Bot bot) {
         // 更新群员最后发言时间
-        groupMsg.get
-        Member member = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
+        MemberInfo memberInfo = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
 
         // 保存群员发送的消息
         MemberMessage memberMessage = new MemberMessage();
         memberMessage.setMsg(groupMsg.getMsg());
-        memberMessage.setMemberId(member.getId());
+        memberMessage.setMemberId(memberInfo.getId());
         memberMessage.setMsgId(groupMsg.getId());
         memberMessageService.save(memberMessage);
 
@@ -119,7 +110,7 @@ public class GroupListener extends BaseListener {
             if (roster != null && roster.getType() == Roster.Type.WHITE_ROSTER) {
                 return;
             }
-            imageMsg(groupMsg, sender, neko, member);
+            imageMsg(groupMsg, sender, neko, memberInfo);
         });
     }
 
@@ -129,10 +120,10 @@ public class GroupListener extends BaseListener {
      * @param groupMsg the group msg
      * @param sender   the sender
      */
-    public void imageMsg(GroupMsg groupMsg, MsgSender sender, Neko neko, Member member) {
+    public void imageMsg(GroupMsg groupMsg, MsgSender sender, Neko neko, MemberInfo memberInfo) {
 
         // 从数据库查询对应图片检测结果
-        ImageLog imageLog = imageLogService.findByImageIdAndMemberId(neko.get("id"), member.getId());
+        ImageLog imageLog = imageLogService.findByImageIdAndMemberId(neko.get("id"), memberInfo.getId());
 
         if (imageLog == null) {
             imageLog = new ImageLog();
@@ -141,7 +132,7 @@ public class GroupListener extends BaseListener {
         ImageLogDto imageLogDto = new ImageLogDto();
         if (imageLog.getCode() != HttpCode.SUCCESS) {
             // 调用pic api检测图片
-            imageLogDto = imageService.verifyPicture(neko, member, imageLog);
+            imageLogDto = imageService.verifyPicture(neko, memberInfo, imageLog);
         } else {
             BeanUtils.copyProperties(imageLogDto, imageLog);
         }
@@ -154,7 +145,7 @@ public class GroupListener extends BaseListener {
         MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
         Carrier<Boolean> carrier = new Carrier<>(true);
         // 图片审核结果处理
-        if (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8) {
+        if (imageLogDto.getProbability() == null || (imageLogDto.getProbability() != null && imageLogDto.getProbability() < 0.8)) {
             return;
         }
         // 违规处理
@@ -268,10 +259,10 @@ public class GroupListener extends BaseListener {
         GroupMemberList memberList = sender.GETTER.getGroupMemberList(groupMsg.getGroupInfo().getGroupCode());
         int count = 0;
         for (GroupMemberInfo groupMemberInfo : memberList) {
-            Member member = buildMember(groupMemberInfo);
+            MemberInfo memberInfo = buildMember(groupMemberInfo);
 
-            if (memberService.findByGroupCodeAndQqCode(member.getGroupCode(), member.getMemberCode()) == null) {
-                memberService.save(member);
+            if (memberService.findByGroupCodeAndQqCode(memberInfo.getGroupCode(), memberInfo.getMemberCode()) == null) {
+                memberService.save(memberInfo);
                 count++;
             }
         }
@@ -282,56 +273,6 @@ public class GroupListener extends BaseListener {
         sender.SENDER.sendGroupMsg(groupMsg, msg);
     }
 
-
-    //    @OnGroup
-//    @Filters(
-//            customMostMatchType = MostMatchType.ALL,
-//            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-//            mostMatchType = MostMatchType.ANY,
-//            value = {
-//                    @Filter(value = "宝", matchType = MatchType.STARTS_WITH)
-//            }
-//    )
-    public Boolean lickDogListener(GroupMsg msg, MsgSender sender) {
-        Response<LickDogData> lickDogResponse = lickDogService.lickDog();
-        if (lickDogResponse.getCode() == HttpCode.SUCCESS) {
-            MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
-            builder.at(msg.getAccountInfo().getAccountCode())
-                    .text(lickDogResponse.getData().getContent());
-
-            sender.SENDER.sendGroupMsg(msg, builder.build());
-        }
-        if (lickDogResponse.getCode() == HttpCode.TIMES_UP) {
-            return Boolean.FALSE;
-        }
-        return Boolean.TRUE;
-    }
-
-    @OnGroup
-    @Filters(
-            customMostMatchType = MostMatchType.ALL,
-            customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP},
-            mostMatchType = MostMatchType.ANY,
-            value = {
-                    @Filter(value = "早报", matchType = MatchType.STARTS_WITH)
-            }
-    )
-    public void zaoBaoListener(GroupMsg msg, MsgSender sender) throws IOException {
-
-        String zaoBaoDataResponse = zaoBaoService.zaoBao();
-
-        // 获取猫猫码工具
-        CatCodeUtil util = CatCodeUtil.INSTANCE;
-
-        // 构建image, 第二个参数为true代表参数值需要进行转义
-        String image = util.toCat("image", true, "url=" + zaoBaoDataResponse);
-//
-//        // 多个CAT码、CAT码与文本消息之间直接进行拼接
-//        sender.sendGroupMsg("14141414", at + " 你的图片：" + image);
-
-        sender.SENDER.sendGroupMsg(msg, image);
-    }
-
     /**
      * 获取最后发言时间
      *
@@ -339,7 +280,7 @@ public class GroupListener extends BaseListener {
      * @param sender   the sender
      */
     @OnGroup
-    @Filter(value = "发言时间", matchType = MatchType.CONTAINS, bots = {"2635200012"}, atBot = true, at = {"2635200012"})
+    @Filter(value = "#发言时间", matchType = MatchType.CONTAINS, bots = {"2635200012"}, atBot = true, at = {"2635200012"})
     public void Listener(GroupMsg groupMsg, MsgSender sender) {
         if (groupMsg.getAccountInfo().getAccountCodeNumber() == 571675921L) {
 
@@ -368,6 +309,28 @@ public class GroupListener extends BaseListener {
         } else {
             sender.SENDER.sendGroupMsg(groupMsg, "您当前没有权限哦！");
         }
+    }
+
+    /**
+     * 获取最后发言时间
+     *
+     * @param groupMsg the group msg
+     * @param sender   the sender
+     */
+    @OnGroup
+    @Filter(value = "#菜单", matchType = MatchType.EQUALS, bots = {"1334135506"})
+    public void menu(GroupMsg groupMsg, MsgSender sender) {
+        List<SysMenu> all = menuService.findAll();
+        StringBuilder msg = new StringBuilder();
+        for (int i = 0; i < all.size(); i++) {
+            SysMenu sysMenu = all.get(i);
+            msg.append(i + 1).append(": ").append(sysMenu.getName());
+            if (i < all.size() - 1) {
+                msg.append("\n");
+            }
+        }
+        MessageContentBuilder builder = builderFactory.getMessageContentBuilder();
+        sender.SENDER.sendGroupMsg(groupMsg, builder.text(msg).build());
     }
 
 }

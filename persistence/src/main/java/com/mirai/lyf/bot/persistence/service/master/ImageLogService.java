@@ -3,7 +3,7 @@ package com.mirai.lyf.bot.persistence.service.master;
 import catcode.Neko;
 import com.mirai.lyf.bot.common.kit.HttpCode;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.model.alapi.ImageData;
 import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.model.master.ImageLogDto;
@@ -43,17 +43,17 @@ public class ImageLogService {
     /**
      * 构建数据
      *
-     * @param result the image result
-     * @param member
+     * @param result     the image result
+     * @param memberInfo
      */
-    public void buildImageLog(Response<ImageData> result, Neko neko, ImageLogDto imageLogDto, Member member) {
+    public void buildImageLog(Response<ImageData> result, Neko neko, ImageLogDto imageLogDto, MemberInfo memberInfo) {
         imageLogDto.setCode(result.getCode());
         imageLogDto.setMsg(result.getMsg());
         imageLogDto.setLogId(result.getLogId());
         imageLogDto.setApiTime(result.getTime());
         imageLogDto.setImageId(neko.get("id"));
         imageLogDto.setUrl(neko.get("url"));
-        imageLogDto.setMemberId(member.getId());
+        imageLogDto.setMemberId(memberInfo.getId());
 
         if (HttpCode.SUCCESS == result.getCode() && result.getData() != null) {
             imageLogDto.setConclusion(result.getData().getConclusion());

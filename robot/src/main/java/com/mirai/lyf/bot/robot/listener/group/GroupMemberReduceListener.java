@@ -2,7 +2,7 @@ package com.mirai.lyf.bot.robot.listener.group;
 
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.domain.master.Roster;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
@@ -63,13 +63,13 @@ public class GroupMemberReduceListener extends BaseListener {
         AccountInfo accountInfo = reduceMsg.getAccountInfo();
 
         // 更新群员信息
-        Member member = memberService.findByGroupCodeAndQqCode(groupInfo.getGroupCodeNumber(),
+        MemberInfo memberInfo = memberService.findByGroupCodeAndQqCode(groupInfo.getGroupCodeNumber(),
                 beOperatorInfo.getBeOperatorCodeNumber());
         boolean b = reduceMsg.getReduceType() == GroupMemberReduce.Type.KICK;
-        if (member != null) {
-            member.setStatus(b ? Member.Status.KICK :
-                    Member.Status.LEAVE);
-            memberService.save(member);
+        if (memberInfo != null) {
+            memberInfo.setStatus(b ? MemberInfo.Status.KICK :
+                    MemberInfo.Status.LEAVE);
+            memberService.save(memberInfo);
         }
         // 若成员是被踢出，加黑名单
         if (b) {

@@ -4,7 +4,7 @@ import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.kit.CustomerFilter;
 import com.mirai.lyf.bot.common.kit.Welcome;
 import com.mirai.lyf.bot.common.utils.DateUtils;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.OperateLogService;
@@ -68,7 +68,7 @@ public class GroupMemberIncreaseListener extends BaseListener {
 
         // 保存新成员信息
         GroupMemberInfo memberInfo = sender.GETTER.getMemberInfo(groupCode, beOperatorCode);
-        Member member = memberService.findByGroupCodeAndQqCode(groupCode, beOperatorCode);
+        MemberInfo member = memberService.findByGroupCodeAndQqCode(groupCode, beOperatorCode);
         // 若不存在，新增，存在则不处理
         if (member == null) {
             member = buildMember(memberInfo);

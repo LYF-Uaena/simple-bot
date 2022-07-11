@@ -13,10 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author LYF
- * @create 2021-03-26 14:45
- * @desc 黑白名单功能消息过滤器
- **/
+ * 黑白名单功能消息过滤器
+ *
+ * @author LYF.UAENA
+ * @since 2022年07月08日 23:22
+ */
 @Slf4j
 @Component("rosterFilter")
 public class RosterFilter extends BaseFilter implements ListenerFilter {

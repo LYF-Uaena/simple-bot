@@ -1,6 +1,4 @@
 simbot:
-  core:
-    bots:
   component:
     mirai:
       # mirai心跳周期. 过长会导致被服务器断开连接. 单位毫秒。
@@ -48,10 +46,3 @@ simbot:
           priLoadFactor: 1.0
           # 群消息缓存负载因子。默认为 1.0。
           groLoadFactor: 1.0
-
-logging:
-  file:
-    name: logs/robot.log
-    path: logs/robot.log
-  level:
-    root: info

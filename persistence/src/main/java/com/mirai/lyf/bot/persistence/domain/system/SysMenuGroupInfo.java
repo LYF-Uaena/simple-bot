@@ -12,13 +12,13 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 
-import static com.mirai.lyf.bot.persistence.domain.system.Config.TABLE_NAME;
+import static com.mirai.lyf.bot.persistence.domain.system.SysMenuGroupInfo.TABLE_NAME;
 
 /**
- * 系统配置
+ * 菜单群中间表
  *
  * @author LYF.UAENA
- * @since 2022年03月20日 12:28
+ * @since 2022年03月20日 15:44
  */
 @Entity
 @Getter
@@ -27,11 +27,16 @@ import static com.mirai.lyf.bot.persistence.domain.system.Config.TABLE_NAME;
 @RequiredArgsConstructor
 @Table(name = TABLE_NAME)
 @EntityListeners(AuditingEntityListener.class)
-public class Config extends MasterEntity {
-    public static final String TABLE_NAME = "sys_configs";
+public class SysMenuGroupInfo extends MasterEntity {
+    public static final String TABLE_NAME = "sys_menu_group_info";
 
-    @Column(columnDefinition = ("varchar(100) DEFAULT NULL COMMENT 'code'"))
+    @Column(columnDefinition = ("varchar(100) not null COMMENT '功能代号'"))
     private String code;
-    @Column(columnDefinition = ("varchar(300) DEFAULT NULL COMMENT 'value'"))
-    private String value;
+
+    @Column(columnDefinition = ("varchar(16) not null COMMENT '群号'"))
+    private String groupCode;
+
+    @Column(columnDefinition = ("tinyint(1) not null COMMENT '开关'"))
+    private Boolean status;
+
 }

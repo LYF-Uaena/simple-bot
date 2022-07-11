@@ -1,29 +1,35 @@
 package com.mirai.lyf.bot.persistence.domain.base;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
- * The type Master entity.
+ * 公共表属性父类
  *
- * @author LYF on 2020-09-28
+ * @author LYF.UAENA
+ * @since 2022年03月20日 11:32
  */
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @MappedSuperclass
-@Data
-public class MasterEntity extends IdEntity {
+public class MasterEntity implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(nullable = false, updatable = false,
             columnDefinition = ("timestamp DEFAULT CURRENT_TIMESTAMP comment '建立时间'"))
     @CreatedDate
     private Timestamp createdTime;
 
-    @Column(nullable = false, columnDefinition = ("timestamp DEFAULT CURRENT_TIMESTAMP comment '更新时间'"))
+    @Column(columnDefinition = ("timestamp DEFAULT NULL comment '更新时间'"))
     @LastModifiedDate
     private Timestamp modifiedTime;
 }

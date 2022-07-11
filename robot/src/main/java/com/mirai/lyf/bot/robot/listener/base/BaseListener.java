@@ -3,7 +3,7 @@ package com.mirai.lyf.bot.robot.listener.base;
 import catcode.CatCodeUtil;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.DateUtils;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.master.OperateLog;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
@@ -91,10 +91,10 @@ public class BaseListener {
      * @return the member
      */
     @NotNull
-    public synchronized Member checkMember(MsgSender sender, AccountInfo accountInfo, GroupInfo groupInfo,
-                                           MemberService memberService) {
+    public synchronized MemberInfo checkMember(MsgSender sender, AccountInfo accountInfo, GroupInfo groupInfo,
+                                               MemberService memberService) {
         // 从数据库查询
-        Member member = memberService.findByGroupCodeAndQqCode(groupInfo.getGroupCodeNumber(),
+        MemberInfo member = memberService.findByGroupCodeAndQqCode(groupInfo.getGroupCodeNumber(),
                 accountInfo.getAccountCodeNumber());
         if (member == null) {
             // 获取当前群员信息
@@ -123,8 +123,8 @@ public class BaseListener {
      * @return the member
      */
     @NotNull
-    public Member buildMember(GroupMemberInfo memberInfo) {
-        Member member = new Member();
+    public MemberInfo buildMember(GroupMemberInfo memberInfo) {
+        MemberInfo member = new MemberInfo();
         member.setGroupCode(memberInfo.getGroupInfo().getGroupCodeNumber());
         member.setMemberCode(memberInfo.getAccountCodeNumber());
         member.setHeadUrl(memberInfo.getAccountAvatar());

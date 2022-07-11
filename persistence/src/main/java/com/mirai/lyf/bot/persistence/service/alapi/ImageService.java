@@ -2,14 +2,13 @@ package com.mirai.lyf.bot.persistence.service.alapi;
 
 
 import catcode.Neko;
-import cn.hutool.core.img.Img;
 import com.mirai.lyf.bot.common.kit.AlApi;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLog;
 import com.mirai.lyf.bot.persistence.domain.master.ImageLogDetail;
-import com.mirai.lyf.bot.persistence.domain.master.Member;
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.model.alapi.ImageData;
 import com.mirai.lyf.bot.persistence.model.alapi.Response;
@@ -20,15 +19,12 @@ import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.support.atomic.RedisAtomicDouble;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The type Image service.
@@ -54,13 +50,13 @@ public class ImageService {
     /**
      * 图片合规审查.
      *
-     * @param neko     the neko
-     * @param member   the member
-     * @param imageLog the image log
+     * @param neko       the neko
+     * @param memberInfo the member
+     * @param imageLog   the image log
      *
      * @return the image result
      */
-    public ImageLogDto verifyPicture(Neko neko, Member member, ImageLog imageLog) {
+    public ImageLogDto verifyPicture(Neko neko, MemberInfo memberInfo, ImageLog imageLog) {
         log.info("检测开始---");
         long start = System.currentTimeMillis();
         String url = neko.get("url");
@@ -77,7 +73,7 @@ public class ImageService {
         Response<ImageData> imageResult = JsonUtils.toBean(rst, Response.class, ImageData.class);
 
         ImageLogDto imageLogDto = new ImageLogDto();
-        imageLogService.buildImageLog(imageResult, neko, imageLogDto, member);
+        imageLogService.buildImageLog(imageResult, neko, imageLogDto, memberInfo);
 
         BeanUtils.copyProperties(imageLogDto, imageLog);
         imageLogService.save(imageLog);
