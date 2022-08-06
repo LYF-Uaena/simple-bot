@@ -29,7 +29,7 @@ public class MasterEntity implements Serializable {
     @CreatedDate
     private Timestamp createdTime;
 
-    @Column(columnDefinition = ("timestamp DEFAULT NULL comment '更新时间'"))
+    @Column(insertable = false, columnDefinition = ("timestamp DEFAULT NULL comment '更新时间'"))
     @LastModifiedDate
     private Timestamp modifiedTime;
 }

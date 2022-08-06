@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * @author LYF
- * @create 2021-06-23 09:25
- * @desc 文本审核
- **/
+ * 文本审核
+ *
+ * @author LYF.UAENA
+ * @since 2022年07月21日 21:51
+ */
 @NoArgsConstructor
 @Data
 public class TextData {

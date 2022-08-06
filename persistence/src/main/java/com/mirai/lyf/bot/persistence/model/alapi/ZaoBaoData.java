@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 每日60秒早报
+ * 每日60秒新闻
  *
- * @author LYF
- * @since 2021-06-22 14:40
+ * @author LYF.UAENA
+ * @since 2022年07月21日 21:52
  */
 @Data
 @NoArgsConstructor

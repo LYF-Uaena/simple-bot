@@ -5,10 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @author LYF
- * @create 2021-06-22 14:40
- * @desc 舔狗日记
- **/
+ * 舔狗日记
+ *
+ * @author LYF.UAENA
+ * @since 2022年07月21日 21:50
+ */
 @NoArgsConstructor
 @Data
 public class LickDogData {

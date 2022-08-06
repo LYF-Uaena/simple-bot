@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 每日60秒早报
+ * 天气
  *
- * @author LYF
- * @since 2021-06-22 14:40
+ * @author LYF.UAENA
+ * @since 2022年07月21日 21:51
  */
 @Data
 @NoArgsConstructor
-public class TianQiData {
+public class WeatherData {
 
     @JsonProperty("city")
     private String city;

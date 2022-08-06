@@ -1,10 +1,11 @@
 package com.mirai.lyf.bot.persistence.model.alapi;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
 
 /**
  * @author LYF
@@ -24,7 +25,7 @@ public class Response<K> {
 
     // 请求api的时间
     @JsonProperty("time")
-    private Long time;
+    private Timestamp time;
 
     // 本次请求log id
     @JsonProperty("log_id")
@@ -33,5 +34,5 @@ public class Response<K> {
     // 请求返回数据
     @JsonProperty("data")
     private K data;
-    
+
 }

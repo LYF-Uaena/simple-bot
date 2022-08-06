@@ -3,6 +3,7 @@ package com.mirai.lyf.bot.persistence.service.alapi;
 import com.mirai.lyf.bot.common.kit.ConfigCodeKit;
 import com.mirai.lyf.bot.common.utils.HttpUtils;
 import com.mirai.lyf.bot.common.utils.JsonUtils;
+import com.mirai.lyf.bot.persistence.annation.RecordLog;
 import com.mirai.lyf.bot.persistence.domain.system.Config;
 import com.mirai.lyf.bot.persistence.model.alapi.Response;
 import com.mirai.lyf.bot.persistence.service.system.ConfigService;
@@ -23,13 +24,10 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AlApiService {
-    private final ConfigService configService;
-
     @Autowired
-    public AlApiService(ConfigService configService) {
-        this.configService = configService;
-    }
+    private ConfigService configService;
 
+    @RecordLog
     public <T> Response<T> doHttpGet(String api, Map<String, String> params, Class<T> t) {
         if (CollectionUtils.isEmpty(params)) {
             params = new HashMap<>();

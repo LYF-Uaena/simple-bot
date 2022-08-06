@@ -26,4 +26,8 @@ public class AlApi {
      * 天气
      */
     public static final String TIAN_QI = "https://v2.alapi.cn/api/tianqi";
+    /**
+     * 网易云二维码
+     */
+    public static final String CLOUD_MUSIC_QR_CODE = "https://v2.alapi.cn/api/musicsign/createQR";
 }

@@ -21,7 +21,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +94,7 @@ public class HttpUtils {
      *
      * @return
      */
-    public static String  doHttpGet(String uri, Map<String, String> getParams) {
+    public static String doHttpGet(String uri, Map<String, String> getParams) {
         HttpGet httpGet = null;
         CloseableHttpResponse response = null;
         try {

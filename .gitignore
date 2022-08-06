@@ -48,4 +48,5 @@ build/
 gradle
 cache
 
-**/simbot-bots/**
+**/bots/**
+/.simbot/

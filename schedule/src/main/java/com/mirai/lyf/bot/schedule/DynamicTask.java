@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * @author LYF
- * @create 2021-03-01 13:24
- * @desc
- **/
+ * The type Dynamic task.
+ *
+ * @author LYF.UAENA
+ * @since 2022年07月17日 10:43
+ */
 @Service
 public class DynamicTask {
 

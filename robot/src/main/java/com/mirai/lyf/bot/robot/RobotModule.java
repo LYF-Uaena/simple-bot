@@ -1,6 +1,6 @@
 package com.mirai.lyf.bot.robot;
 
-import love.forte.simbot.spring.autoconfigure.EnableSimbot;
+import love.forte.simboot.spring.autoconfigure.EnableSimbot;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 

@@ -1,6 +1,5 @@
 package com.mirai.lyf.bot.persistence.model.alapi;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,10 +7,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * @author LYF
- * @create 2021-06-22 10:23
- * @desc 图片api返回数据
- **/
+ * 图片api返回数据
+ *
+ * @author LYF.UAENA
+ * @since 2022年07月21日 21:50
+ */
 @Data
 @NoArgsConstructor
 public class ImageData {
