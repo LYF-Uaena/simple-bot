@@ -4,7 +4,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     open-in-view: false
     database-platform: org.hibernate.dialect.MySQL5Dialect
     jackson:

@@ -11,74 +11,49 @@
 
     <artifactId>robot</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
-
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/love.forte.simple-robot/component-mirai-spring-boot-starter -->
+        <!-- https://mvnrepository.com/artifact/love.forte.simbot.boot/simboot-core-spring-boot-starter -->
         <dependency>
-            <groupId>love.forte.simple-robot</groupId>
-            <artifactId>component-mirai-spring-boot-starter</artifactId>
+            <groupId>love.forte.simbot.boot</groupId>
+            <artifactId>simboot-core-spring-boot-starter</artifactId>
+            <version>${simbot.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/love.forte.simbot.component/simbot-component-mirai-boot -->
+        <dependency>
+            <groupId>love.forte.simbot.component</groupId>
+            <artifactId>simbot-component-mirai-boot</artifactId>
+            <version>${mirai.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.google.re2j/re2j -->
-        <dependency>
-            <groupId>com.google.re2j</groupId>
-            <artifactId>re2j</artifactId>
-            <version>1.5</version>
-        </dependency>
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.google.re2j/re2j &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.google.re2j</groupId>-->
+        <!--            <artifactId>re2j</artifactId>-->
+        <!--&lt;!&ndash;            <version>1.6</version>&ndash;&gt;-->
+        <!--        </dependency>-->
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.11</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.commons</groupId>-->
+        <!--            <artifactId>commons-lang3</artifactId>-->
+        <!--&lt;!&ndash;            <version>3.11</version>&ndash;&gt;-->
+        <!--        </dependency>-->
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.tensorflow/tensorflow-core-platform &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.tensorflow</groupId>-->
+        <!--            <artifactId>tensorflow-core-platform</artifactId>-->
+        <!--            <version>0.4.1</version>-->
+        <!--        </dependency>-->
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/log4j/log4j &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>log4j</groupId>-->
-<!--            <artifactId>log4j</artifactId>-->
-<!--            <version>1.2.17</version>-->
-<!--        </dependency>-->
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <version>${lombok.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mirai.lyf</groupId>
-            <artifactId>common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-
+        <!--        <dependency>-->
+        <!--            <groupId>org.projectlombok</groupId>-->
+        <!--            <artifactId>lombok</artifactId>-->
+        <!--            <optional>true</optional>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>com.mirai.lyf</groupId>
             <artifactId>persistence</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.mirai.lyf</groupId>
-            <artifactId>web</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
