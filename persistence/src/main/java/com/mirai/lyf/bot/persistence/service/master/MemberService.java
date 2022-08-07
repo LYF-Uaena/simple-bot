@@ -29,8 +29,8 @@ public class MemberService extends CommonService<MemberInfo, MemberRepository> {
      *
      * @return the member
      */
-    public MemberInfo findByGroupCodeAndQqCode(@NotNull Long groupCode, @NotNull Long memberCode) {
-        return repo.findByGroupCodeAndMemberCode(groupCode, memberCode);
+    public MemberInfo findByGroupCodeAndQqCode(@NotNull Object groupCode, @NotNull Object memberCode) {
+        return repo.findByGroupCodeAndMemberCode(Long.parseLong((String) groupCode), Long.parseLong((String) memberCode));
     }
 
     /**

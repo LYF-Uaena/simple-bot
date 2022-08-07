@@ -1,20 +1,25 @@
 package com.mirai.lyf.bot.robot.listener.group;
 
+import com.mirai.lyf.bot.persistence.domain.master.MemberInfo;
+import com.mirai.lyf.bot.persistence.domain.master.MemberMessage;
 import com.mirai.lyf.bot.persistence.domain.system.SysMenu;
 import com.mirai.lyf.bot.persistence.domain.system.SysMenuGroupInfo;
 import com.mirai.lyf.bot.persistence.repository.system.MenuGroupInfoRepository;
 import com.mirai.lyf.bot.persistence.service.master.MemberMessageService;
 import com.mirai.lyf.bot.persistence.service.master.MemberService;
 import com.mirai.lyf.bot.persistence.service.master.RosterService;
+import com.mirai.lyf.bot.persistence.service.system.ConfigService;
 import com.mirai.lyf.bot.persistence.service.system.MenuService;
+import com.mirai.lyf.bot.robot.listener.base.BaseListener;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Filters;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simboot.filter.MatchType;
 import love.forte.simboot.filter.MultiFilterMatchType;
-import love.forte.simbot.event.ChangedEvent;
 import love.forte.simbot.event.GroupMessageEvent;
+import love.forte.simbot.message.Messages;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -27,15 +32,11 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class GroupListener {
+public class GroupListener extends BaseListener {
     @Autowired
     private MemberMessageService memberMessageService;
     @Autowired
     private MemberService memberService;
-    //    @Autowired
-//    private ImageService imageService;
-//    @Autowired
-//    private ImageLogService imageLogService;
     @Autowired
     private RosterService rosterService;
     @Autowired
@@ -45,54 +46,47 @@ public class GroupListener {
     @Autowired
     private MenuGroupInfoRepository menuGroupInfoRepo;
 
-    @Listener
-    public void lickDogListener(ChangedEvent changeEvent) {
-
-        Object before = changeEvent.getBefore();
-        Object after = changeEvent.getAfter();
-        Object source = changeEvent.getSource();
-
-        System.out.println("asd");
+    public GroupListener(ConfigService configService) {
+        super(configService);
     }
 
-//    /**
-//     * 保存消息并更新群成员最后发言时间
-//     *
-//     * @param groupMsg the group msg
-//     * @param sender   the sender
-//     * @param bot      the bot
-//     */
-//    @OnGroup
-//    @Filters(customMostMatchType = MostMatchType.ALL, customFilter = {CustomerFilter.SPEAKING_ROBOT, CustomerFilter.FORMAL_GROUP})
-//    public void updateLastSpeakTime(GroupMsg groupMsg, MsgSender sender, Bot bot) {
-//        // 更新群员最后发言时间
-//        MemberInfo memberInfo = checkMember(sender, groupMsg.getAccountInfo(), groupMsg.getGroupInfo(), memberService);
-//
-//        // 保存群员发送的消息
-//        MemberMessage memberMessage = new MemberMessage();
-//        memberMessage.setMsg(groupMsg.getMsg());
-//        memberMessage.setMemberId(memberInfo.getId());
-//        memberMessage.setMsgId(groupMsg.getId());
-//        memberMessageService.save(memberMessage);
-//
-//        // 检测图片
-//        MessageContent images = groupMsg.getMsgContent();
-//        List<Neko> rich = images.getCats("rich");
-//        if (!CollectionUtils.isEmpty(rich)) {
-//            recallGroupMessage(groupMsg, sender);
-//            return;
-//        }
-//        List<Neko> nekoList = images.getCats("image");
-//        nekoList.forEach(neko -> {
-//            log.info("检测了一张来自{}的图片", groupMsg.getAccountInfo().getAccountCode());
-//            // 判断白名单成员
-//            Roster roster = rosterService.findByMemberCode(groupMsg.getAccountInfo().getAccountCodeNumber());
-//            if (roster != null && roster.getType() == Roster.Type.WHITE_ROSTER) {
-//                return;
-//            }
-//            imageMsg(groupMsg, sender, neko, memberInfo);
-//        });
-//    }
+    /**
+     * 保存消息并更新群成员最后发言时间
+     *
+     * @param event the event
+     */
+    @Listener
+    public void updateLastSpeakTime(GroupMessageEvent event) {
+        // 更新群员最后发言时间
+        MemberInfo memberInfo = checkMember(event, memberService);
+
+        // 保存群员发送的消息
+        MemberMessage memberMessage = new MemberMessage();
+        Messages messages = event.getMessageContent().getMessages();
+        String join = StringUtils.join(messages, ";");
+        memberMessage.setMsg(join);
+        memberMessage.setMemberId(memberInfo.getId());
+        memberMessage.setMsgId(String.valueOf(event.getMessageContent().getMessageId()));
+        memberMessageService.save(memberMessage);
+
+        //        // 检测图片
+        //        MessageContent images = groupMsg.getMsgContent();
+        //        List<Neko> rich = images.getCats("rich");
+        //        if (!CollectionUtils.isEmpty(rich)) {
+        //            recallGroupMessage(groupMsg, sender);
+        //            return;
+        //        }
+        //        List<Neko> nekoList = images.getCats("image");
+        //        nekoList.forEach(neko -> {
+        //            log.info("检测了一张来自{}的图片", groupMsg.getAccountInfo().getAccountCode());
+        //            // 判断白名单成员
+        //            Roster roster = rosterService.findByMemberCode(groupMsg.getAccountInfo().getAccountCodeNumber());
+        //            if (roster != null && roster.getType() == Roster.Type.WHITE_ROSTER) {
+        //                return;
+        //            }
+        //            imageMsg(groupMsg, sender, neko, memberInfo);
+        //        });
+    }
 //
 //    /**
 //     * 图片审核
