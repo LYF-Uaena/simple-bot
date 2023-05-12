@@ -27,7 +27,7 @@
     <properties>
         <java.version>8</java.version>
         <!-- https://mvnrepository.com/artifact/love.forte.simbot.boot/simboot-core-spring-boot-starter -->
-        <simbot.version>3.0.0-RC.3</simbot.version>
+        <simbot.version>3.0.0</simbot.version>
         <!-- https://mvnrepository.com/artifact/love.forte.simbot.component/simbot-component-mirai-boot -->
         <mirai.version>3.0.0.0.preview.13.0</mirai.version>
     </properties>

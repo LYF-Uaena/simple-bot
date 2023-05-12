@@ -7,7 +7,7 @@ public class BubbleSort {
     /**
      * 冒泡排序
      *
-     * @param arr
+     * @param arr the arr
      */
     private static void bubbleSort(int[] arr) {
         if (arr == null || arr.length < 2) {
@@ -23,4 +23,25 @@ public class BubbleSort {
             }
         }
     }
+
+    /**
+     * 插入排序
+     *
+     * @param arr the arr
+     * @param len the len
+     */
+    public void insertion_sort(int[] arr, int len) {
+        int i, j, key;
+        for (i = 1; i < len; i++) {
+            key = arr[i];
+            j = i - 1;
+            while ((j >= 0) && (arr[j] > key)) {
+                arr[j + 1] = arr[j];
+                j--;
+            }
+            arr[j + 1] = key;
+        }
+    }
+
+
 }

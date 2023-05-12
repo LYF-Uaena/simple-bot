@@ -8,8 +8,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * 图片工具类
+ */
 public class ImageUtils {
-    //把图片向右旋转90度后保存到新图片
+    // 把图片向右旋转90度后保存到新图片
     public static void rotateClockwise90(File picFile, String outFilePath) throws IOException {
         //把原图读入内存
         BufferedImage bufferedImage = ImageIO.read(picFile);
@@ -18,12 +21,12 @@ public class ImageUtils {
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
 
-        //内存中创建新图片（老图片旋转90度之后），其宽、高与原始图片相反
+        // 内存中创建新图片（老图片旋转90度之后），其宽、高与原始图片相反
         BufferedImage rotateImg = new BufferedImage(height, width, bufferedImage.getType());
 
-        //新建变换（变换的实际效果和代码顺序是反的，下面实际效果是先旋转后平移）
+        // 新建变换（变换的实际效果和代码顺序是反的，下面实际效果是先旋转后平移）
         AffineTransform trans = new AffineTransform();
-        //2.由于原点在左上角，所以顺时针旋转90度后图片在可视范围左侧，需向右移动过来
+        // 2.由于原点在左上角，所以顺时针旋转90度后图片在可视范围左侧，需向右移动过来
         trans.translate(height, 0);
         //1.原始图片顺时针旋转90度，若想任意角度，请自行修改
         trans.rotate(Math.PI * 0.5);
