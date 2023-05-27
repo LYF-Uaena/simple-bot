@@ -1,7 +1,10 @@
 package com.mirai.lyf.bot.common.sort;
 
 /**
+ * The type Bubble sort.
+ *
  * @author LYF
+ * @since 2023年05月27日 22:25
  */
 public class BubbleSort {
     /**
@@ -43,5 +46,27 @@ public class BubbleSort {
         }
     }
 
+    /**
+     * 希尔排序
+     */
+    public void shellSort(int[] arr, int len) {
+        int increasement = len;
+        int i, j, k;
+        do {
+            // 确定分组的增量
+            increasement = increasement / 3 + 1;
+            for (i = 0; i < increasement; i++) {
+                for (j = i + increasement; j < len; j += increasement) {
+                    if (arr[j] < arr[j - increasement]) {
+                        int temp = arr[j];
+                        for (k = j - increasement; k >= 0 && temp < arr[k]; k -= increasement) {
+                            arr[k + increasement] = arr[k];
+                        }
+                        arr[k + increasement] = temp;
+                    }
+                }
+            }
+        } while (increasement > 1);
+    }
 
 }
