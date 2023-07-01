@@ -18,12 +18,19 @@
             <artifactId>simboot-core-spring-boot-starter</artifactId>
             <version>${simbot.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/love.forte.simbot.component/simbot-component-mirai-boot -->
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/love.forte.simbot.component/simbot-component-mirai-boot &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>love.forte.simbot.component</groupId>-->
+<!--            <artifactId>simbot-component-mirai-boot</artifactId>-->
+<!--            <version>${mirai.version}</version>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/love.forte.simbot.component/simbot-component-mirai-core -->
         <dependency>
             <groupId>love.forte.simbot.component</groupId>
-            <artifactId>simbot-component-mirai-boot</artifactId>
+            <artifactId>simbot-component-mirai-core</artifactId>
             <version>${mirai.version}</version>
         </dependency>
+
 
         <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.google.re2j/re2j &ndash;&gt;-->
         <!--        <dependency>-->
