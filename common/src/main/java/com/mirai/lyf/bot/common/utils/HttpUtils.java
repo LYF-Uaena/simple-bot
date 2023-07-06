@@ -91,7 +91,6 @@ public class HttpUtils {
      *
      * @param uri       请求地址
      * @param getParams 请求参数
-     *
      * @return
      */
     public static String doHttpGet(String uri, Map<String, String> getParams) {
@@ -135,7 +134,6 @@ public class HttpUtils {
      *
      * @param uri       请求地址
      * @param getParams 请求参数
-     *
      * @return
      */
     public static HttpEntity doHttpGetFile(String uri, Map<String, String> getParams) {
@@ -179,7 +177,6 @@ public class HttpUtils {
      *
      * @param uri       请求地址
      * @param getParams map化的请求体对象
-     *
      * @return
      */
     public static String doHttpPost(String uri, Map<String, String> getParams) {
@@ -202,9 +199,9 @@ public class HttpUtils {
                 if (null != entity) {
                     return EntityUtils.toString(entity, "utf-8");
                 }
-            }else if (HttpStatus.SC_MOVED_TEMPORARILY == statusCode){
+            } else if (HttpStatus.SC_MOVED_TEMPORARILY == statusCode && HttpStatus.SC_SEE_OTHER == statusCode) {
                 Header[] locations = response.getHeaders("location");
-                return locations[0].toString().split("!")[0].replace("Location: ","");
+                return locations[0].toString().split("!")[0].replace("Location: ", "");
             }
         } catch (Exception e) {
             log.error("CloseableHttpClient-post-请求异常", e);
@@ -226,7 +223,6 @@ public class HttpUtils {
      *
      * @param uri       请求地址
      * @param reqParams json串
-     *
      * @return
      */
     public static String doHttpPost(String uri, String reqParams) {
